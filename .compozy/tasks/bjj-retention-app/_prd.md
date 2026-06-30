@@ -10,7 +10,7 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 ## Goals
 
-- Validar se os alunos consomem o conteúdo da semana fora do tatame, medido por **média de vídeos assistidos por aluno por semana**.
+- Validar se os alunos consomem o conteúdo da semana fora do tatame, medido por **média de vídeos distintos assistidos por aluno por semana** (e, secundariamente, pelo total de visualizações).
 - Validar o uso como estudo ativo: alunos que assistem às técnicas antes da aula chegam ao tatame com dúvidas a tirar.
 - Confirmar que o formato de vídeo vertical curto + busca por tags é adequado ao estudo de BJJ.
 - Operar em modelo concierge (sem painel administrativo), mantendo o custo de construção e operação mínimo durante a validação.
@@ -58,10 +58,13 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 **4. Biblioteca e busca por tags (alta prioridade)**
 
 - Campo de busca onde o aluno digita uma tag e recebe um feed vertical com todos os vídeos correspondentes do acervo (independente da semana).
+- Busca por correspondência de tag **normalizada** (case-insensitive e insensível a acento), **sem busca semântica** neste MVP. Para evitar inconsistência de digitação, a tela exibe *chips* das tags existentes no acervo como atalho de busca, e a busca livre casa contra esse vocabulário.
 
 **5. Registro de visualizações (alta prioridade, invisível ao aluno)**
 
-- O app registra cada visualização (qual aluno, qual vídeo, quando), permitindo consulta via SQL. É requisito para medir a métrica de sucesso.
+- **Definição de "visualização" (evento de view):** registrada quando o *playhead* alcança 50% da duração do vídeo durante a reprodução — não exige assistir até o fim, e **não** conta abrir o card nem fazer *scrub* manual além da marca. Disparada uma vez por sessão de reprodução do vídeo.
+- O app registra cada evento de visualização (qual aluno, qual vídeo, *timestamp*), permitindo consulta via SQL.
+- **Duas métricas distintas e separadas** são derivadas desses eventos (ver Success Metrics): *vídeos distintos assistidos* (deduplicado por aluno/vídeo/semana) e *total de visualizações* (todos os eventos, incluindo *re-watch*). É requisito para medir as métricas de sucesso.
 
 *Interação entre features:* o Dashboard é a porta de entrada semanal; as tags conectam o consumo da semana ao acervo via busca; o registro de visualizações captura o comportamento em todas as telas de consumo.
 
@@ -69,17 +72,21 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 - **Personas e metas:** o aluno quer estudar de forma ativa (preparar-se antes da aula e revisar depois); o professor quer engajamento mensurável.
 - **Momentos de uso:** o conteúdo é publicado no início da semana, permitindo preview antes de cada aula (chegar com dúvidas) e revisão após o treino.
-- **Fluxo principal:** recebe link no WhatsApp → abre o app → faz login → vê a "Semana Atual" → desliza pelos cards → assiste em tela cheia vertical → toca tags ou busca temas no acervo.
+- **Fluxo principal:** recebe link no WhatsApp → abre o app nativo (*deep link*) → se já autenticado, vai direto ao destino; se não, faz login e então é levado ao destino preservado → vê a "Semana Atual" → desliza pelos cards → assiste em tela cheia vertical → toca tags ou busca temas no acervo.
+- **Deep link pós-login:** o link do WhatsApp pode apontar para a "Semana Atual" ou um vídeo específico. Se o aluno não estiver autenticado (ou em *cold start*, com o app fechado), o app guarda o destino, exibe o login e, após autenticar, navega automaticamente ao destino original.
+- **Estados vazios e de erro (cobertos no wireframe):** dashboard sem semana publicada; busca sem resultados; vídeo indisponível/link quebrado; carregamento (*skeleton*); sem conexão; credenciais inválidas no login.
 - **UI/UX:** rigorosamente mobile-first; consumo exclusivamente em vídeo vertical 9:16; experiência de rolagem/visualização imersiva semelhante a Reels/Shorts/TikTok; tags como pílulas arredondadas, estilo legenda de Reels.
 - **Onboarding e descoberta:** sem fluxo de cadastro; o aluno entra direto com credenciais fornecidas pela academia. A reativação semanal acontece fora do app, pelo aviso do professor via WhatsApp com link.
 
 ## High-Level Technical Constraints
 
-- Experiência mobile-first; vídeo estritamente vertical (proporção 9:16) ocupando o máximo da tela.
-- Reprodução a partir de links externos de vídeo (ex.: YouTube Shorts ou arquivos .mp4 verticais); sem infraestrutura própria de upload pesado no MVP.
+- **App nativo em React Native (Expo)** — há tech spec dedicada; mobile-first; vídeo estritamente vertical (proporção 9:16) ocupando o máximo da tela.
+- **Reprodução com `expo-video`** a partir de **arquivos de vídeo vertical hospedados (mp4 ou HLS)**. YouTube Shorts foi descartado: `expo-video` não reproduz URLs do YouTube e o embed traria chrome do YouTube + letterbox + API de tracking distinta, quebrando a definição única dos 50%. Sem infraestrutura própria de upload pesado no MVP.
 - Contas pré-criadas; sem autoatendimento de cadastro/recuperação.
+- **Sessão persistente por 1 mês**, alinhada ao ciclo mensal de conteúdo (sem relogin a cada link semanal).
+- **Deep linking nativo** para abrir a "Semana Atual" ou um vídeo específico a partir do link de WhatsApp, com destino preservado quando o login é necessário.
 - Sem interface administrativa: ingestão de conteúdo e gestão de contas via operação concierge (banco de dados).
-- O produto deve registrar eventos de visualização de forma consultável, preservando dados mínimos do aluno.
+- O produto deve registrar eventos de visualização (regra dos 50%) de forma consultável, preservando dados mínimos do aluno.
 
 ## Non-Goals (Out of Scope)
 
@@ -98,7 +105,7 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 - As 3 telas (autenticação, dashboard da semana, player + biblioteca/busca) e o registro de visualizações.
 - Operação concierge (conteúdo via banco; reativação via WhatsApp).
-- **Critério para avançar:** dados de consumo coletados ao longo de ~4 semanas em 1 academia indicando média relevante de vídeos assistidos por aluno por semana.
+- **Critério para avançar:** dados de consumo coletados ao longo de ~4 semanas em 1 academia indicando média relevante de vídeos distintos assistidos por aluno por semana.
 
 ### Fase 2
 
@@ -114,10 +121,12 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 ## Success Metrics
 
-- **Métrica principal:** média de vídeos assistidos por aluno por semana.
-- Distribuição de consumo (quantos alunos assistem 0, 1–2, 3+ vídeos/semana).
+- **Definição de view:** evento disparado quando o playhead alcança 50% da duração do vídeo (ver Feature 5).
+- **Métrica principal — vídeos distintos assistidos por aluno por semana:** contagem deduplicada (re-watch do mesmo vídeo não soma); é o número-norte do piloto.
+- **Métrica secundária — total de visualizações (eventos) por aluno por semana:** todos os eventos de 50%, incluindo re-watch; mede intensidade de revisão.
+- Distribuição de consumo (quantos alunos assistem 0, 1–2, 3+ vídeos distintos/semana).
 - Recorrência semanal (alunos que consomem em mais de uma das ~4 semanas).
-- Proporção de visualizações antes vs. depois das aulas da semana (sinal de estudo ativo pré-aula), quando o calendário de aulas for conhecido.
+- **Proporção de views pré-aula vs. pós-aula** via heurística de dia da semana: views de **segunda e terça** contam como *pré-aula*; demais dias como *pós-aula* (dispensa o calendário de aulas).
 - Uso da busca por tags (proxy de estudo ativo no acervo).
 - Qualidade percebida: feedback qualitativo dos alunos e do professor ao fim do piloto.
 
@@ -137,9 +146,20 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 ## Open Questions
 
-- Qual é o limiar numérico de "sucesso" para a média de vídeos/aluno/semana (ex.: ≥3)?
-- O link enviado por WhatsApp deve abrir diretamente a "Semana Atual"/vídeo específico, ou apenas a tela de login?
+- Qual é o limiar numérico de "sucesso" para a média de vídeos distintos/aluno/semana (ex.: ≥3)?
 - Em que dia/momento da semana o professor publica o conteúdo e dispara o aviso, garantindo a janela de preview antes da primeira aula?
 - Quantos vídeos, em média, comporão cada semana (afeta expectativa de consumo)?
 - Haverá conteúdo de acervo já disponível no lançamento, ou o acervo começa vazio e cresce semana a semana?
 - Qual academia parceira e qual o tamanho da base de alunos do piloto?
+- A sessão de 1 mês é fixa a partir do login ou renovada a cada abertura (*sliding*)?
+
+### Resolvidas nesta revisão
+
+- **Definição de view:** playhead atinge 50% da duração (uma vez por reprodução).
+- **Métricas:** duas, separadas — vídeos distintos assistidos e total de visualizações (eventos).
+- **Plataforma:** app nativo React Native (Expo); reprodução com `expo-video`.
+- **Fonte de vídeo:** mp4/HLS vertical hospedado (YouTube Shorts descartado).
+- **Sessão:** persistente por 1 mês.
+- **Deep link:** abre destino (Semana Atual/vídeo) com login intermediário preservando o destino.
+- **Busca:** por tag normalizada + chips das tags existentes, sem busca semântica.
+- **Pré vs. pós-aula:** heurística de dia — seg/ter = pré-aula.

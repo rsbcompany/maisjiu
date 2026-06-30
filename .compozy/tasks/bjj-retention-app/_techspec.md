@@ -17,7 +17,7 @@ The primary technical trade-off: choosing a BaaS (Supabase) over a custom backen
 - **Concierge Admin (out-of-app)** — Admin uses the Supabase SQL editor (service role) to insert weeks/videos/tags, provision accounts, and query metrics.
 - **WhatsApp reactivation (out-of-app)** — Professor sends a manual message containing a deep link that opens the current week (or login when unauthenticated).
 
-**Data flow:** App authenticates → fetches current week + its videos → user plays a video (native player) → app inserts a `video_views` row scoped to the authenticated user → tag taps/search query the junction to return a vertical feed.
+**Data flow:** App authenticates → fetches current week + its videos → user plays a video (native player) → when the playhead reaches 50% of the duration, the app inserts a `video_views` row scoped to the authenticated user (once per playback) → tag taps/search query the junction to return a vertical feed.
 
 ## Implementation Design
 
@@ -53,8 +53,9 @@ export interface Tag { id: UUID; nomeTag: string; }
 export interface ContentRepository {
   getCurrentWeek(today: string): Promise<Week | null>;
   getVideosForWeek(weekId: UUID): Promise<VideoWithTags[]>;
-  searchVideosByTag(tagName: string): Promise<VideoWithTags[]>;
-  recordView(videoId: UUID): Promise<void>; // user_id derived from session
+  listTags(): Promise<Tag[]>; // powers the search chips
+  searchVideosByTag(tagName: string): Promise<VideoWithTags[]>; // case/accent-insensitive
+  recordView(videoId: UUID): Promise<void>; // fires at 50% playhead; user_id from session
 }
 ```
 
@@ -71,21 +72,23 @@ Relational schema in Postgres. Identity/credentials live in Supabase-managed `au
 
 Indexes: `videos(week_id)`, `video_tags(tag_id)`, `video_views(user_id, watched_at)`, `tags(nome_tag)`.
 
+Search normalization: enable the Postgres `unaccent` extension and index `lower(unaccent(nome_tag))` so tag search is case- and accent-insensitive. The deduplicated primary metric counts distinct `(user_id, video_id)` per week from `video_views`; the secondary metric counts all rows (re-watch included).
+
 ### API Endpoints
 
 No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (ADR-005):
 
 - **Auth** — `auth.signInWithPassword({ email, password })`; signup/recovery disabled.
 - **Current week** — `select` from `weeks` where `current_date between data_inicio and data_fim`, newest first; then `videos` by `week_id` ordered by `ordem`, with nested `tags`.
-- **Tag search** — `select` videos joined through `video_tags`/`tags` filtered by `nome_tag` (case-insensitive), returning the vertical feed.
-- **Record view** — `insert` into `video_views` `{ video_id }`; `user_id` is taken from the JWT via RLS `with check (user_id = auth.uid())`.
+- **Tag search** — `select` videos joined through `video_tags`/`tags` filtered by `nome_tag` (case- and accent-insensitive via `unaccent`), matched against the existing tag vocabulary surfaced as chips; returns the vertical feed. No semantic search in the MVP.
+- **Record view** — when the playhead crosses 50% of the video duration (once per playback; not on card open or manual scrub past the mark), `insert` into `video_views` `{ video_id }`; `user_id` is taken from the JWT via RLS `with check (user_id = auth.uid())`.
 - **Admin (service role, out-of-app)** — SQL inserts for content and `select` aggregations for metrics.
 
 ## Integration Points
 
-- **Supabase Auth** — JWT-based session; client stores session securely (Expo SecureStore). RLS consumes `auth.uid()`.
+- **Supabase Auth** — JWT-based session persisted ~1 month (refresh token + auto-refresh) in Expo SecureStore, aligned to the monthly content cycle so students do not re-login at each weekly link. RLS consumes `auth.uid()`.
 - **Video hosting (Supabase Storage or external CDN)** — Public/signed URLs for `.mp4`/HLS; retried by the native player on transient failures.
-- **WhatsApp deep link** — `scheme://semana-atual` resolved by Expo Router; falls back to login when unauthenticated. Sending is manual (no API integration).
+- **WhatsApp deep link** — `scheme://semana-atual` or `scheme://video/:id` resolved by Expo Router. When unauthenticated (including cold start with the app closed), the app stores the intended destination, shows login, then resumes to that destination after authenticating. Sending is manual (no API integration).
 
 ## Impact Analysis
 
@@ -94,16 +97,16 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 | Expo app (client) | new | Entire mobile client; greenfield, low regression risk | Scaffold app, screens, navigation, player |
 | Supabase project | new | Postgres schema, Auth config, Storage bucket | Provision project, apply schema + RLS |
 | RLS policies | new | Misconfiguration could leak/block data (medium) | Write and test policies before pilot |
-| `video_views` log | new | New table not in `bjj.md`; central to metric | Create table, index, insert-on-play |
+| `video_views` log | new | New table not in `bjj.md`; central to metric | Create table, index, insert at 50% playhead |
 | Concierge SQL scripts | new | Manual content/account provisioning | Prepare seed and metric query snippets |
 
 ## Testing Approach
 
 ### Unit Tests
 
-- Strategy: Jest + React Native Testing Library on critical logic only — `recordView` (correct payload, fires once per play), `searchVideosByTag` (case-insensitive, empty results), current-week selection by date, and tag-pill navigation.
+- Strategy: Jest + React Native Testing Library on critical logic only — `recordView` (fires once when the playhead crosses 50%, not on card open or scrub; correct payload), `searchVideosByTag` (case- and accent-insensitive, empty results), `listTags` (powers chips), current-week selection by date, and tag-pill navigation.
 - Mocks: mock the `supabase-js` client at the `ContentRepository` boundary; no network in unit tests.
-- Edge cases: no current week published, week with zero videos, video with no tags, search with no matches, expired session.
+- Edge cases: no current week published, week with zero videos, video with no tags, search with no matches, expired session, invalid login credentials, unavailable/broken video URL, and offline (no connection).
 
 ### Integration Tests
 
@@ -116,14 +119,14 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 
 1. **Provision Supabase**: create project, apply relational schema (`profiles`, `weeks`, `videos`, `tags`, `video_tags`, `video_views`), indexes, and RLS policies — no dependencies.
 2. **Seed concierge data + accounts**: insert one week with videos/tags and create pilot accounts — depends on step 1.
-3. **Expo scaffold + auth**: app skeleton, Expo Router, `supabase-js`, SecureStore session, login screen — depends on step 1.
+3. **Expo scaffold + auth**: app skeleton, Expo Router, `supabase-js`, 1-month persistent session (refresh token + auto-refresh in SecureStore), login screen — depends on step 1.
 4. **Dashboard "Semana Atual"**: header/greeting from `profiles`, current-week block, horizontal vertical-card carousel — depends on steps 2 and 3.
 5. **Vertical player + tag pills**: `expo-video` fullscreen player, title, clickable tag pills — depends on step 4.
-6. **View-event recording**: insert into `video_views` on play start (once per play) — depends on steps 1 and 5.
-7. **Tag search feed**: search field → vertical feed via junction query — depends on step 5.
-8. **WhatsApp deep link**: route to current week / login fallback — depends on step 4.
+6. **View-event recording**: insert into `video_views` when the playhead reaches 50% of the duration (once per playback; not on card open or manual scrub past the mark) — depends on steps 1 and 5.
+7. **Tag search feed**: tag chips (from `listTags`) + free text, case- and accent-insensitive (`unaccent`) → vertical feed via junction query; no semantic search — depends on step 5.
+8. **WhatsApp deep link**: route to current week or specific video; preserve the destination through login when unauthenticated (incl. cold start) — depends on step 4.
 9. **Unit tests**: critical-logic suite + mocks — depends on steps 3–7.
-10. **Metric SQL snippets**: admin queries for avg views/user/week, distribution, recurrence — depends on step 6.
+10. **Metric SQL snippets**: admin queries for distinct videos/user/week (primary), total views/user/week (secondary), distribution, recurrence, and pre/post-class split by weekday — depends on step 6.
 
 ### Technical Dependencies
 
@@ -133,8 +136,8 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 
 ## Monitoring and Observability
 
-- **Success metric (SQL):** average videos watched per student per week, derived from `video_views` joined to `weeks` via `watched_at`.
-- **Secondary (SQL):** consumption distribution (0 / 1–2 / 3+ per week), weekly recurrence, tag-search usage, pre- vs post-class share (when class schedule is known).
+- **Primary metric (SQL):** average **distinct** videos watched per student per week (deduplicated by student/video/week), derived from `video_views` joined to `weeks` via `watched_at`.
+- **Secondary (SQL):** total views per student per week (all 50% events, re-watch included), consumption distribution (0 / 1–2 / 3+ distinct per week), weekly recurrence, tag-search usage, and pre- vs post-class share via weekday heuristic (Mon/Tue = pre-class; other days = post-class; no class schedule needed).
 - **Logs:** Supabase Auth and PostgREST logs for failed logins and rejected RLS operations.
 - **Alerting:** none automated in the MVP; admin reviews metric queries weekly during the ~4-week pilot.
 
@@ -145,7 +148,8 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 - **Decision:** BaaS (Supabase) instead of a custom backend. **Rationale:** speed, native SQL admin, built-in auth/RLS. **Trade-offs:** vendor coupling, no Go layer. **Rejected:** Go API + Postgres, Firebase. (ADR-004)
 - **Decision:** React Native + Expo client. **Rationale:** single codebase, native vertical-video UX. **Trade-offs:** store/test-build distribution friction. **Rejected:** PWA, Flutter, native split. (ADR-003)
 - **Decision:** Supabase Auth (email+password) + RLS, signup disabled. **Rationale:** secure, pre-created accounts, per-student data isolation. **Trade-offs:** requires an email per student. **Rejected:** custom auth table, username login. (ADR-005)
-- **Decision:** native `expo-video` for `.mp4`/HLS; generic `url_video`. **Rationale:** immersive fullscreen without black bars. **Trade-offs:** YouTube embeds deprioritized for the MVP.
+- **Decision:** native `expo-video` for `.mp4`/HLS; generic `url_video`. **Rationale:** immersive fullscreen without black bars. **Trade-offs:** YouTube embeds dropped — `expo-video` cannot play YouTube URLs and embeds break the single 50% definition. (PRD §Constraints)
+- **Decision:** a "view" is recorded at 50% of the playhead (once per playback), and metrics separate distinct videos (primary) from total views (secondary). **Rationale:** reflects genuine consumption, not card opens or scrubs. **Trade-offs:** requires playback-progress tracking in the player. (PRD §Core Features 5, §Success Metrics)
 
 ### Known Risks
 
