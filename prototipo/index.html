@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mais Jiu — Protótipo Android</title>
+  <style>
+    :root {
+      --bg: #f7f4ed;
+      --surface: #f7f4ed;
+      --fg: #1c1c1c;
+      --muted: #5f5f5d;
+      --meta: rgba(28, 28, 28, 0.4);
+      --border: #eceae4;
+      --accent: #ff4d8d;
+      --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+      --text-sm: 14px;
+      --text-lg: 18px;
+      --text-3xl: 48px;
+      --space-2: 8px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-8: 32px;
+      --radius-lg: 16px;
+      --motion-fast: 150ms;
+      --tracking-display: -0.025em;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: ui-sans-serif, system-ui, sans-serif; line-height: 1.55; }
+    .launcher { min-height: 100vh; padding: var(--space-8); }
+    .launcher-inner { max-width: 720px; margin: 0 auto; }
+    .launcher-header { text-align: center; margin-bottom: var(--space-8); }
+    .launcher-header h1 { font-size: var(--text-3xl); font-weight: 600; letter-spacing: var(--tracking-display); }
+    .launcher-header p { color: var(--muted); margin-top: var(--space-2); }
+    .screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); }
+    .screen-card {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      transition: border-color var(--motion-fast) ease, transform var(--motion-fast) ease;
+    }
+    .screen-card:hover { border-color: var(--meta); transform: translateY(-2px); }
+    .screen-card .num { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--accent); margin-bottom: var(--space-2); }
+    .screen-card h2 { font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-1); }
+    .screen-card p { font-size: var(--text-sm); color: var(--muted); line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <main class="launcher" data-od-id="launcher">
+    <div class="launcher-inner">
+      <div class="launcher-header">
+        <h1>Mais Jiu</h1>
+        <p class="body">Protótipo high-fidelity do app de retenção e estudo para Jiu-Jitsu. <br>Clique em uma tela para abrir dentro do frame Android.</p>
+      </div>
+      <div class="screen-grid">
+        <a class="screen-card" href="login.html">
+          <div class="num">01</div>
+          <h2>Login</h2>
+          <p>Autenticação com usuário e senha pré-criados, validação de credenciais e estado de erro.</p>
+        </a>
+        <a class="screen-card" href="home.html">
+          <div class="num">02</div>
+          <h2>O Agora</h2>
+          <p>Dashboard da semana atual, saudação ao aluno e carrossel horizontal de vídeos 9:16.</p>
+        </a>
+        <a class="screen-card" href="player.html">
+          <div class="num">03</div>
+          <h2>Player</h2>
+          <p>Player vertical imersivo, título, tags clicáveis e barra de progresso com play/pause.</p>
+        </a>
+        <a class="screen-card" href="search.html">
+          <div class="num">04</div>
+          <h2>Biblioteca</h2>
+          <p>Busca por tag, chips de atalho e feed vertical de resultados do acervo.</p>
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
