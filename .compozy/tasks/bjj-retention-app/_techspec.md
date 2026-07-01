@@ -76,7 +76,7 @@ Relational schema in Postgres. Identity/credentials live in Supabase-managed `au
 
 Indexes: `videos(week_id)`, `video_tags(tag_id)`, `video_views(user_id, watched_at)`, `tags(nome_tag)`.
 
-Search normalization: enable the Postgres `unaccent` extension and index `lower(unaccent(nome_tag))` so tag search is case- and accent-insensitive. The deduplicated primary metric counts distinct `(user_id, video_id)` per week from `video_views`; the secondary metric counts all rows (re-watch included).
+Search normalization: enable the Postgres `unaccent` extension and, because `unaccent` is not `IMMUTABLE` by default, wrap it in an `IMMUTABLE` SQL function (`f_unaccent(text)`) so the expression can be indexed. Create the functional index `lower(f_unaccent(nome_tag))` and use the same expression in the search query so tag search is case- and accent-insensitive. The deduplicated primary metric counts distinct `(user_id, video_id)` per week from `video_views`; the secondary metric counts all rows (re-watch included).
 
 ### API Endpoints
 
@@ -99,7 +99,7 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 | Component | Impact Type | Description and Risk | Required Action |
 |-----------|-------------|----------------------|-----------------|
 | Expo app (client) | new | Entire mobile client (4 screens, 2-tab nav, immersive player), Android-first; greenfield, low regression risk | Scaffold app, screens, navigation, player with technique breakdown |
-| Supabase project | new | Postgres schema, Auth config, Storage bucket | Provision project, apply schema + RLS |
+| Supabase project | exists | Postgres schema, Auth config, Storage bucket | Apply schema + RLS on pilot project (`snjaaejvwlkgmyvgrmro`; see [Supabase Project (piloto)](#supabase-project-piloto)) |
 | RLS policies | new | Misconfiguration could leak/block data (medium) | Write and test policies before pilot |
 | `video_views` log | new | New table not in `bjj.md`; central to metric | Create table, index, insert at 50% playhead |
 | Concierge SQL scripts | new | Manual content/account provisioning | Prepare seed and metric query snippets |
@@ -114,14 +114,26 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 
 ### Integration Tests
 
-- Out of scope for the MVP (chosen level: critical-unit + manual smoke). Manual smoke covers the full flow: login → dashboard → player → view recorded → tag search.
-- If promoted later: run the repository against a dedicated Supabase test project to validate RLS policies end-to-end.
+Integration tests are **in scope** for the MVP (data / RLS layer):
+
+- **Data / RLS layer — Jest + local Supabase (CLI + Docker).** Run the real `ContentRepository` against a local Supabase stack started with `supabase start` (Postgres, Auth, PostgREST in Docker), seeded from `supabase/seed.sql`. Validates schema, RLS policies (authenticated read, per-user `video_views` insert/read isolation, anon blocked), and repository queries end-to-end. Fallback when Docker is unavailable (e.g. constrained CI): a dedicated Supabase cloud test project (separate `project_ref`, never the pilot).
+
+Framework summary:
+
+| Layer | Framework | Target |
+|-------|-----------|--------|
+| Unit | Jest + React Native Testing Library | Critical logic, mocked `supabase-js` |
+| Integration (data/RLS) | Jest + local Supabase (CLI/Docker) | Repository + RLS against real Postgres |
+
+Test data isolation: integration runs use a disposable local database (reset per run via `supabase db reset`) or the dedicated cloud test project — never the pilot project `snjaaejvwlkgmyvgrmro`.
+
+**End-to-end (UI) — deferred to Phase 2.** Automated E2E flows (e.g. Maestro on an Android emulator) are out of scope for now; the full flow (login → dashboard → player → view → search) is covered by manual smoke during the pilot. Revisit E2E automation in Phase 2.
 
 ## Development Sequencing
 
 ### Build Order
 
-1. **Provision Supabase**: create project, apply relational schema (`profiles`, `weeks`, `videos`, `tags`, `video_tags`, `video_views`), indexes, and RLS policies — no dependencies.
+1. **Provision Supabase**: apply relational schema (`profiles`, `weeks`, `videos`, `tags`, `video_tags`, `video_views`), indexes, and RLS policies on the existing pilot project (see [Supabase Project (piloto)](#supabase-project-piloto)) — no dependencies.
 2. **Seed concierge data + accounts**: insert one week with videos/tags plus technique metadata (`from_position`, `to_positions`, `steps`) and create pilot accounts; seed content available in `prototipo/player.html` — depends on step 1.
 3. **Expo scaffold + auth**: app skeleton, Expo Router, `supabase-js`, 1-month persistent session (refresh token + auto-refresh in SecureStore), login screen — depends on step 1.
 4. **Dashboard "Semana Atual"**: header/greeting from `profiles`, current-week block, horizontal vertical-card carousel — depends on steps 2 and 3.
@@ -129,14 +141,29 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 6. **View-event recording**: insert into `video_views` when the playhead reaches 50% of the duration (once per playback; not on card open or manual scrub past the mark) — depends on steps 1 and 5.
 7. **Tag search feed**: tag chips (from `listTags`) + free text, case- and accent-insensitive (`unaccent`) → vertical feed via junction query; no semantic search — depends on step 5.
 8. **WhatsApp deep link**: route to current week or specific video; preserve the destination through login when unauthenticated (incl. cold start) — depends on step 4.
-9. **Unit tests**: critical-logic suite + mocks — depends on steps 3–7.
+9. **Unit tests**: critical-logic suite + mocks (Jest + RNTL) — depends on steps 3–7.
 10. **Metric SQL snippets**: admin queries for distinct videos/user/week (primary), total views/user/week (secondary), distribution, recurrence, and pre/post-class split by weekday — depends on step 6.
+11. **Integration tests**: repository/RLS suite against local Supabase (Jest) covering authenticated read, per-user `video_views` isolation, and tag search — depends on steps 6–8. (E2E automation deferred to Phase 2; manual smoke covers the full flow.)
 
 ### Technical Dependencies
 
-- Supabase project provisioned and reachable.
+- Supabase pilot project provisioned and reachable (see below).
 - At least one published week with vertical video URLs available.
 - Pilot accounts created (signup disabled).
+- Supabase CLI + Docker for the local integration stack (`supabase start`), or a dedicated cloud test project as fallback.
+
+### Supabase Project (piloto)
+
+The Supabase project for this MVP **already exists**. Schema, RLS, seed, and metric SQL are applied to this instance — not a greenfield project creation step.
+
+| Item | Value |
+|------|-------|
+| `project_ref` | `snjaaejvwlkgmyvgrmro` |
+| MCP URL | `https://mcp.supabase.com/mcp?project_ref=snjaaejvwlkgmyvgrmro` |
+
+**Agent / dev tooling:** MCP setup and OAuth instructions live in [`mcp-supabase-setup.md`](../../../mcp-supabase-setup.md) at the repository root. Prefer Supabase MCP (`execute_sql`, advisors) when available; do not duplicate MCP client config in this document.
+
+**App client:** the Expo app uses the public Supabase URL and anon key via environment variables (e.g. `.env` / EAS secrets) — never commit service-role keys.
 
 ## Monitoring and Observability
 
@@ -155,6 +182,7 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 - **Decision:** native `expo-video` for `.mp4`/HLS; generic `url_video`. **Rationale:** immersive fullscreen without black bars. **Trade-offs:** YouTube embeds dropped — `expo-video` cannot play YouTube URLs and embeds break the single 50% definition. (PRD §Constraints)
 - **Decision:** a "view" is recorded at 50% of the playhead (once per playback), and metrics separate distinct videos (primary) from total views (secondary). **Rationale:** reflects genuine consumption, not card opens or scrubs. **Trade-offs:** requires playback-progress tracking in the player. (PRD §Core Features 5, §Success Metrics)
 - **Decision:** store technique metadata as nullable columns on `videos` — `from_position (text)`, `to_positions (text[])`, `steps (text[])` — instead of separate tables; positions are free text (informational only) with a documented canonical list to reduce inconsistency. **Rationale:** minimal schema supporting multiple destinations and step ordering via array order (YAGNI); positions are not navigable in the MVP. **Trade-offs:** consistency relies on admin discipline, not a DB constraint. **Rejected:** dedicated `positions` table (deferred to Phase 3 if positions become navigable); reusing tags as positions (tags are broad themes, positions are specific states — the data diverges). (ADR-006)
+- **Decision:** automated integration testing via Jest + local Supabase (CLI/Docker) for the repository/RLS data layer; end-to-end UI automation is deferred to Phase 2. **Rationale:** RLS is the medium-risk area and must be validated against real Postgres, not mocks; E2E automation adds Docker/emulator CI cost that is not justified for the pilot, where manual smoke suffices. **Trade-offs:** requires Docker for the local integration stack; no automated UI regression coverage until Phase 2. **Rejected (for now):** mock-only integration (would not exercise real RLS); Maestro/Detox E2E (deferred to Phase 2); testing against the pilot project (risks polluting metrics).
 
 ### Known Risks
 
