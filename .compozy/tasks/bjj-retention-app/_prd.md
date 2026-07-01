@@ -2,7 +2,7 @@
 
 ## Overview
 
-Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estudar de forma ativa, pelo celular, as técnicas da semana — fazendo preview antes da aula e revisão depois — por meio de vídeos curtos verticais (9:16) com experiência de consumo imersiva (estilo Reels/Shorts/TikTok) e busca por tags no acervo.
+**Mais Jiu** é um aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estudar de forma ativa, pelo celular, as técnicas da semana — fazendo preview antes da aula e revisão depois — por meio de vídeos curtos verticais (9:16) com experiência de consumo imersiva (estilo Reels/Shorts/TikTok). Cada técnica é acompanhada da decomposição da transição de posição ("De → Para") e de um passo a passo numerado, além de busca por tags no acervo.
 
 - **Problema que resolve:** o aprendizado no tatame se perde entre os treinos; o aluno não tem uma forma rápida e organizada de estudar as técnicas da semana — nem para chegar à aula preparado com dúvidas, nem para revisar o que treinou — e a academia não tem um gancho de engajamento fora do horário de aula.
 - **Para quem é:** alunos de uma academia parceira (usuário final) e, indiretamente, o dono/professor da academia, que quer aumentar engajamento e retenção.
@@ -26,12 +26,14 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 - Como aluno, quero assistir às técnicas da semana antes da aula, para chegar ao tatame preparado e com dúvidas a tirar com o professor.
 - Como aluno, quero deslizar horizontalmente entre os cards verticais da semana, para navegar de forma natural no celular.
 - Como aluno, quero abrir um vídeo em tela cheia vertical, para ver o detalhe do golpe sem faixas pretas que reduzam a área útil.
+- Como aluno, quero ver de qual posição a técnica parte e para qual(is) posição(ões) ela leva ("De → Para"), para entender o encadeamento posicional do golpe.
+- Como aluno, quero ler o passo a passo numerado da técnica, para conseguir estudar e reproduzir a execução fora do tatame.
 - Como aluno, quero ver o título e as tags do vídeo em formato de pílulas clicáveis, para entender o contexto e explorar temas relacionados.
 - Como aluno, quero buscar por uma tag (ex.: "Passagem"), para encontrar todos os vídeos daquele tema no acervo.
 
 **Persona secundária — O Admin/Professor (operação concierge)**
 
-- Como admin, quero inserir semanas, vídeos e tags diretamente no banco de dados, para publicar conteúdo sem precisar de uma interface administrativa.
+- Como admin, quero inserir semanas, vídeos, tags e os metadados da técnica (posição de origem, posição(ões) de destino e passo a passo) diretamente no banco de dados, para publicar conteúdo sem precisar de uma interface administrativa.
 - Como admin, quero publicar o conteúdo no início da semana, para que os alunos possam estudar as técnicas antes das aulas daquela semana.
 - Como admin, quero avisar os alunos por WhatsApp quando uma nova semana for publicada, para trazê-los de volta ao app.
 - Como admin, quero consultar via SQL quantos vídeos cada aluno assistiu por semana, para medir o sucesso da validação.
@@ -50,10 +52,12 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 - Conteúdo da semana publicado no início da semana, disponível tanto para preview antes das aulas quanto para revisão depois.
 - Galeria dos vídeos da semana em cards verticais (9:16), com navegação por deslize horizontal (carrossel) amigável ao toque.
 
-**3. Player vertical (alta prioridade)**
+**3. Player vertical + decomposição da técnica (alta prioridade)**
 
-- Ao tocar um card, o vídeo abre ocupando a maior parte da tela na vertical, maximizando a área do golpe.
-- Abaixo do player: título do vídeo e tags em pílulas arredondadas e clicáveis (tocar a tag leva ao feed daquela tag).
+- Ao tocar um card, o vídeo abre em tela imersiva vertical (full-bleed, sem tab bar), ocupando a maior parte da tela e maximizando a área do golpe.
+- Sobre o vídeo, uma legenda expansível exibe: título; tags em pílulas arredondadas e clicáveis (tocar a tag leva ao feed daquela tag); a decomposição **"De → Para"** (posição de origem → posição(ões) de destino, suportando múltiplos destinos, ex.: "100kg / Montada"); e o **passo a passo numerado**.
+- A legenda inicia colapsada mostrando apenas os **2 primeiros passos**, com ação "Ver mais"/"Ver menos" para expandir a lista completa.
+- Os metadados de técnica (origem, destino(s), passos) são opcionais por vídeo: quando ausentes, a tela exibe apenas título e tags.
 
 **4. Biblioteca e busca por tags (alta prioridade)**
 
@@ -72,7 +76,8 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 - **Personas e metas:** o aluno quer estudar de forma ativa (preparar-se antes da aula e revisar depois); o professor quer engajamento mensurável.
 - **Momentos de uso:** o conteúdo é publicado no início da semana, permitindo preview antes de cada aula (chegar com dúvidas) e revisão após o treino.
-- **Fluxo principal:** recebe link no WhatsApp → abre o app nativo (*deep link*) → se já autenticado, vai direto ao destino; se não, faz login e então é levado ao destino preservado → vê a "Semana Atual" → desliza pelos cards → assiste em tela cheia vertical → toca tags ou busca temas no acervo.
+- **Navegação:** barra inferior com 2 abas — **Início** (dashboard da "Semana Atual") e **Buscar** (acervo por tags). O Player é uma tela imersiva sem barra de abas (apenas botão voltar). Login é tela única de entrada.
+- **Fluxo principal:** recebe link no WhatsApp → abre o app nativo (*deep link*) → se já autenticado, vai direto ao destino; se não, faz login e então é levado ao destino preservado → vê a "Semana Atual" → desliza pelos cards → assiste em tela imersiva vertical, lendo o "De → Para" e o passo a passo → toca tags ou busca temas no acervo.
 - **Deep link pós-login:** o link do WhatsApp pode apontar para a "Semana Atual" ou um vídeo específico. Se o aluno não estiver autenticado (ou em *cold start*, com o app fechado), o app guarda o destino, exibe o login e, após autenticar, navega automaticamente ao destino original.
 - **Estados vazios e de erro (cobertos no wireframe):** dashboard sem semana publicada; busca sem resultados; vídeo indisponível/link quebrado; carregamento (*skeleton*); sem conexão; credenciais inválidas no login.
 - **UI/UX:** rigorosamente mobile-first; consumo exclusivamente em vídeo vertical 9:16; experiência de rolagem/visualização imersiva semelhante a Reels/Shorts/TikTok; tags como pílulas arredondadas, estilo legenda de Reels.
@@ -81,6 +86,8 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 ## High-Level Technical Constraints
 
 - **App nativo em React Native (Expo)** — há tech spec dedicada; mobile-first; vídeo estritamente vertical (proporção 9:16) ocupando o máximo da tela.
+- **Piloto Android-first** (alvo Pixel-class); demais plataformas ficam para fase posterior.
+- **Design system definido** no protótipo (`prototipo/design.md`): superfície creme (#f7f4ed), acento rosa (#ff4d8d) reservado apenas ao flourish da seta "De → Para", peso tipográfico máximo 600, bordas em vez de sombras.
 - **Reprodução com `expo-video`** a partir de **arquivos de vídeo vertical hospedados (mp4 ou HLS)**. YouTube Shorts foi descartado: `expo-video` não reproduz URLs do YouTube e o embed traria chrome do YouTube + letterbox + API de tracking distinta, quebrando a definição única dos 50%. Sem infraestrutura própria de upload pesado no MVP.
 - Contas pré-criadas; sem autoatendimento de cadastro/recuperação.
 - **Sessão persistente por 1 mês**, alinhada ao ciclo mensal de conteúdo (sem relogin a cada link semanal).
@@ -97,14 +104,15 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 - Notificações push e e-mail automatizados (reativação é manual via WhatsApp neste MVP).
 - Marca de "assistido"/contador de progresso visível ao aluno (considerado para fase futura).
 - Funcionalidades sociais (curtidas, comentários, favoritos/salvos).
+- Interação in-app de dúvidas/perguntas ao professor (o "tirar dúvida" acontece presencialmente no tatame; o bloco de pergunta foi removido do player).
 - Suporte multi-academia (piloto restrito a uma academia).
 
 ## Phased Rollout Plan
 
 ### MVP (Fase 1)
 
-- As 3 telas (autenticação, dashboard da semana, player + biblioteca/busca) e o registro de visualizações.
-- Operação concierge (conteúdo via banco; reativação via WhatsApp).
+- As 4 telas (autenticação, dashboard da semana, player imersivo com decomposição da técnica, e busca no acervo) com navegação por 2 abas (Início/Buscar), e o registro de visualizações.
+- Operação concierge (conteúdo via banco, incluindo "De → Para" e passo a passo; reativação via WhatsApp).
 - **Critério para avançar:** dados de consumo coletados ao longo de ~4 semanas em 1 academia indicando média relevante de vídeos distintos assistidos por aluno por semana.
 
 ### Fase 2
@@ -116,6 +124,7 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 ### Fase 3
 
 - Painel administrativo para professores e suporte multi-academia (base do micro-SaaS B2B).
+- Vocabulário controlado de posições com navegação (mapa de posições: tocar em uma posição → técnicas relacionadas).
 - Modelo de cobrança/assinatura B2B.
 - **Critério de sucesso de longo prazo:** academias dispostas a pagar pela ferramenta com retenção comprovada de alunos.
 
@@ -143,6 +152,7 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 
 - [ADR-001: Estratégia de MVP — Concierge Enxuto focado na hipótese de revisão semanal](adrs/adr-001.md) — Construir exatamente as 3 telas com registro invisível de visualizações e reativação manual via WhatsApp, priorizando velocidade e fidelidade à hipótese.
 - [ADR-002: Modelo de estudo ativo — conteúdo publicado no início da semana](adrs/adr-002.md) — Reposicionar o produto para estudo ativo (preview antes da aula + revisão depois), publicando o conteúdo no início da semana.
+- [ADR-006: Estrutura de conteúdo da técnica — decomposição "De → Para" e passo a passo](adrs/adr-006.md) — Cada vídeo suporta posição de origem, destino(s) e passos numerados, exibidos na legenda expansível do player (colapsada mostra 2 passos).
 
 ## Open Questions
 
@@ -163,3 +173,4 @@ Aplicativo mobile-first que permite ao aluno de uma academia de Jiu-Jitsu estuda
 - **Deep link:** abre destino (Semana Atual/vídeo) com login intermediário preservando o destino.
 - **Busca:** por tag normalizada + chips das tags existentes, sem busca semântica.
 - **Pré vs. pós-aula:** heurística de dia — seg/ter = pré-aula.
+- **Posições "De → Para":** texto livre no MVP, com lista canônica de posições documentada no material do concierge para reduzir inconsistência. São apenas informativas (não navegáveis) neste piloto. Vocabulário controlado em tabela dedicada fica para a Fase 3, se as posições se tornarem navegáveis (mapa de posições).
