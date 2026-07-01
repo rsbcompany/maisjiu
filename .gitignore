@@ -1,0 +1,6 @@
+# Logs
+logs/
+*.log
+
+# Superconductor-managed session context (local, tool-generated)
+.cursor/rules/superconductor-managed.mdc
