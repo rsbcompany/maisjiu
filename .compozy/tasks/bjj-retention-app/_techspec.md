@@ -21,6 +21,56 @@ The primary technical trade-off: choosing a BaaS (Supabase) over a custom backen
 
 ## Implementation Design
 
+### Design Source of Truth (visual)
+
+The static prototype in [`prototipo/`](../../../prototipo/) is the **visual source
+of truth** for the Expo app (ADR-007). All four screens (Login, Início, Buscar,
+Player) must reproduce the layout, spacing, typography, colors, radii, elevation,
+motion, interactions, and states defined in the prototype and in
+[`prototipo/design.md`](../../../prototipo/design.md).
+
+Each Expo screen has a direct HTML reference in the prototype that **is the screen
+itself** to be reproduced (not just inspiration):
+
+| Expo app screen | Reference HTML (to reproduce) |
+|-----------------|-------------------------------|
+| Login           | [`prototipo/login.html`](../../../prototipo/login.html) |
+| Início (Dashboard "Semana Atual") | [`prototipo/home.html`](../../../prototipo/home.html) |
+| Buscar (Library) | [`prototipo/search.html`](../../../prototipo/search.html) |
+| Player (immersive) | [`prototipo/player.html`](../../../prototipo/player.html) |
+
+[`prototipo/index.html`](../../../prototipo/index.html) is the prototype launcher
+(not a screen in the app) and [`prototipo/css/app.css`](../../../prototipo/css/app.css)
+holds the tokens in `:root` (transcribed to `src/theme/` per `design.md` §2).
+
+- **Tokens** (`prototipo/design.md` §2) → transcribed to `src/theme/` in the Expo
+  app. No invented beiges, no weight 700+, no chromatic accents outside `accent`
+  (`#ff4d8d`).
+- **`accent` is the only flourish**, max 2 spots per screen; in the current
+  prototype, only the player's "De → Para" arrow. The player progress bar is
+  **white**, not pink. Primary CTAs are charcoal, not pink.
+- **Component inventory** (`design.md` §3) is canonical (names, props, states,
+  exact px dimensions). A tile can be rebuilt reading `design.md` + the reference
+  HTMLs — no redesign.
+- **Anti-patterns** (`design.md` §7) are forbidden in the app: no "Ver mais"
+  button on home cutting the carousel; no search in the player header; no
+  "ask the professor" block; no author row; no fake mesh gradient; no "deslize →"
+  label; no weight 700; no pink on CTAs.
+- **Interactions** (`design.md` §5) are the expected behavior: carousel peek +
+  right-edge fade; player tap-to-play, 900ms play-button auto-hide, collapsed
+  caption showing 2 steps + "Ver mais/Ver menos", snackbar "Visualização
+  registrada (50%)" once when crossing 50%.
+- **Target platform Android-first** (Pixel-class, 412×915px logical); the
+  prototype frame reflects this. `SafeAreaView` + `StatusBar` replace the mock
+  `<DeviceFrame>`.
+- **Native adaptations only where HTML doesn't map** (e.g. no `:hover` on mobile;
+  `backdrop-filter` → `expo-blur`; `text-shadow` → `textShadowColor/Offset/Radius`).
+  These mappings are already tabulated in `design.md` §6 — follow them, do not
+  reinvent.
+
+Deliberate deviations from visual fidelity require justification in a PR or a new
+ADR — never a silent agent choice.
+
 ### Core Interfaces
 
 > Note: per ADR-004 the stack is TypeScript-only (no Go backend), so core interfaces are expressed in TypeScript rather than Go.
@@ -199,3 +249,4 @@ The Supabase project for this MVP **already exists**. Schema, RLS, seed, and met
 - [ADR-004: Backend e dados — Supabase (BaaS), sem backend Go](adrs/adr-004.md) — Managed Postgres/Auth/REST; TypeScript-only, deviating from the Go convention.
 - [ADR-005: Autenticação e segurança — Supabase Auth + RLS](adrs/adr-005.md) — Email+password with signup disabled and per-student RLS isolation.
 - [ADR-006: Estrutura de conteúdo da técnica — "De → Para" e passo a passo](adrs/adr-006.md) — Per-video origin/destination(s) and ordered steps, shown in the player's expandable caption; stored as nullable array columns.
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual do app Expo](adrs/adr-007.md) — The `prototipo/` directory and `prototipo/design.md` are the visual source of truth; screens must reproduce layout, tokens, components, interactions, and anti-patterns defined there.

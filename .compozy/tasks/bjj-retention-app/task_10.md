@@ -54,7 +54,7 @@ Expected paths:
 Repository query joins `videos` → `video_tags` → `tags` filtering `lower(f_unaccent(nome_tag)) = lower(f_unaccent($1))` — the same expression as the functional index from task_01 (`f_unaccent` is the `IMMUTABLE` wrapper around `unaccent`).
 
 ### Relevant Files
-- `prototipo/search.html` — layout and chip behavior
+- `prototipo/search.html` — tela de Buscar a reproduzir (fonte de verdade visual: layout, chip behavior, empty state)
 - `prototipo/design.md` — Search screen state (§5), FeedItem specs
 - `src/data/contentRepository.ts` — listTags, searchVideosByTag
 - `.compozy/tasks/bjj-retention-app/_techspec.md` — search normalization
@@ -65,6 +65,7 @@ Repository query joins `videos` → `video_tags` → `tags` filtering `lower(f_u
 - `.compozy/tasks/bjj-retention-app/task_11.md` — deep link may include tag param
 
 ### Related ADRs
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual](../adrs/adr-007.md) — SearchScreen reproduz `prototipo/search.html`
 - PRD **Core Features §4** — normalized tag search, chips from vocabulary
 
 ## Deliverables

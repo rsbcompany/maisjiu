@@ -18,7 +18,7 @@
 
 ## Contexto
 
-Projeto **greenfield** no app mobile: sem Expo, migrations ou `package.json` no repositório. O protótipo HTML/CSS em `prototipo/` serve como referência visual e de seed. Tipos de task: defaults do Compozy (`frontend`, `infra`, etc.) — sem `.compozy/config.toml` customizado.
+Projeto **greenfield** no app mobile: sem Expo, migrations ou `package.json` no repositório. O protótipo HTML/CSS em `prototipo/` é a **fonte de verdade visual** do app Expo (ADR-007) — cada tela tem um HTML de referência que é a própria tela a reproduzir (`login.html`, `home.html`, `player.html`, `search.html`), além de referência de seed. Tipos de task: defaults do Compozy (`frontend`, `infra`, etc.) — sem `.compozy/config.toml` customizado.
 
 Testes unitários (Jest + React Native Testing Library) ficam **embutidos em cada task**, conforme TechSpec — sem task dedicada só a testes.
 
@@ -54,19 +54,19 @@ Inicializa app Expo (TypeScript, Android-first). Configura Expo Router: Login �
 
 ### 05 — Design system e componentes base de UI
 
-Implementa tokens de `prototipo/design.md` (`theme/`) e componentes: Button, Input, Field, Tag, Snackbar, IconButton, StateView, Caption. Respeita constraints (accent pink limitado, peso máx. 600, bordas vs sombras).
+Implementa tokens de `prototipo/design.md` (`theme/`) e componentes: Button, Input, Field, Tag, Snackbar, IconButton, StateView, Caption. Respeita constraints (accent pink limitado, peso máx. 600, bordas vs sombras). Componentes extraídos dos HTMLs de referência (login/home/player/search). **ADR-007.**
 
 ### 06 — Cliente Supabase, ContentRepository e tela de login
 
-Integra `supabase-js` com sessão persistente (~1 mês via SecureStore). Implementa contrato `ContentRepository` e LoginScreen com estados de erro/credenciais inválidas. **ADR-004, ADR-005.**
+Integra `supabase-js` com sessão persistente (~1 mês via SecureStore). Implementa contrato `ContentRepository` e LoginScreen com estados de erro/credenciais inválidas. LoginScreen reproduz `prototipo/login.html`. **ADR-004, ADR-005, ADR-007.**
 
 ### 07 — Dashboard "Semana Atual" com carrossel horizontal
 
-HomeScreen: saudação do perfil, WeekCard, carrossel de VideoCards 9:16 com edge-fade e peek do 3º card, chips exploratórios de tags. Estados: sem semana, skeleton, offline, erro. **ADR-002.**
+HomeScreen: saudação do perfil, WeekCard, carrossel de VideoCards 9:16 com edge-fade e peek do 3º card, chips exploratórios de tags. Estados: sem semana, skeleton, offline, erro. Reproduz `prototipo/home.html`. **ADR-002, ADR-007.**
 
 ### 08 — Player vertical imersivo com decomposição "De → Para"
 
-PlayerScreen com `expo-video`, scrims, legenda expansível (2 passos colapsados + "Ver mais"), decomposição posicional (múltiplos destinos), tags clicáveis → busca. Metadados opcionais ausentes exibem só título/tags. **ADR-006.**
+PlayerScreen com `expo-video`, scrims, legenda expansível (2 passos colapsados + "Ver mais"), decomposição posicional (múltiplos destinos), tags clicáveis → busca. Metadados opcionais ausentes exibem só título/tags. Reproduz `prototipo/player.html`. **ADR-006, ADR-007.**
 
 ### 09 — Registro de visualizações aos 50% do playhead
 
@@ -74,7 +74,7 @@ Dispara `recordView` uma vez por sessão de reprodução quando playhead ≥ 50%
 
 ### 10 — Biblioteca e busca por tags com chips
 
-SearchScreen: input pill, chips de `listTags`, filtro normalizado (case/accent-insensitive via `unaccent`), feed vertical com FeedItem, empty state, navegação para player.
+SearchScreen: input pill, chips de `listTags`, filtro normalizado (case/accent-insensitive via `unaccent`), feed vertical com FeedItem, empty state, navegação para player. Reproduz `prototipo/search.html`. **ADR-007.**
 
 ### 11 — Deep linking WhatsApp com destino preservado no login
 

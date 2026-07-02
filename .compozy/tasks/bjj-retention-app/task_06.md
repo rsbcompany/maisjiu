@@ -52,13 +52,13 @@ Expected paths:
 - `app/login.tsx` — LoginScreen
 - `.env.example` — public keys only
 
-Login UX matches `prototipo/login.html`: brand mark "MJ", fields Usuário/Senha, charcoal primary CTA, helper for pré-criadas contas.
+LoginScreen reproduz fielmente `prototipo/login.html` (fonte de verdade visual, ADR-007): brand mark "MJ", fields Usuário/Senha, charcoal primary CTA, helper for pré-criadas contas.
 
 ### Relevant Files
 - `.compozy/tasks/bjj-retention-app/_techspec.md` — ContentRepository contract
 - `mcp-supabase-setup.md` — pilot project reference
 - `prototipo/design.md` — LoginBody specs (§3, §5)
-- `prototipo/login.html` — layout reference
+- `prototipo/login.html` — tela de Login a reproduzir (fonte de verdade visual)
 
 ### Dependent Files
 - `.compozy/tasks/bjj-retention-app/task_07.md` — dashboard calls repository
@@ -69,6 +69,7 @@ Login UX matches `prototipo/login.html`: brand mark "MJ", fields Usuário/Senha,
 ### Related ADRs
 - [ADR-004: Backend e dados — Supabase (BaaS)](../adrs/adr-004.md) — direct client access
 - [ADR-005: Autenticação e segurança — Supabase Auth + RLS](../adrs/adr-005.md) — signup disabled
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual](../adrs/adr-007.md) — LoginScreen reproduz `prototipo/login.html`
 
 ## Deliverables
 - Working Supabase client with SecureStore session persistence

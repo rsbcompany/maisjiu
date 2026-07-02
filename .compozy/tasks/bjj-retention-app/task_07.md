@@ -54,7 +54,7 @@ Expected paths:
 Thumbnail: use gradient placeholder from `hue` or poster frame until real CDN thumbs (task_08 player validates video URLs).
 
 ### Relevant Files
-- `prototipo/home.html` — layout reference
+- `prototipo/home.html` — tela de Início a reproduzir (fonte de verdade visual)
 - `prototipo/design.md` — Carousel dimensions and fade behavior (§3)
 - `.compozy/tasks/bjj-retention-app/_prd.md` — dashboard requirements
 - `src/data/contentRepository.ts` — data access (task_06)
@@ -65,6 +65,7 @@ Thumbnail: use gradient placeholder from `hue` or poster frame until real CDN th
 
 ### Related ADRs
 - [ADR-002: Modelo de estudo ativo](../adrs/adr-002.md) — weekly content at week start
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual](../adrs/adr-007.md) — HomeScreen reproduz `prototipo/home.html`
 
 ## Deliverables
 - HomeScreen fully wired to Supabase content

@@ -52,7 +52,10 @@ Primary CTA: charcoal (`fg`) background, not pink. Borders `#eceae4` instead of 
 ### Relevant Files
 - `prototipo/design.md` — authoritative design system
 - `prototipo/css/app.css` — token source (`:root` variables)
-- `prototipo/login.html` — Button, Input, Field reference
+- `prototipo/login.html` — Button, Input, Field, Helper reference
+- `prototipo/home.html` — Tag chip, Caption, IconButton reference
+- `prototipo/player.html` — Snackbar, ReelsTag patterns reference
+- `prototipo/search.html` — SearchInput, FeedItem caption reference
 - `.agents/skills/vercel-react-native-skills/AGENTS.md` — Pressable, styling patterns
 
 ### Dependent Files
@@ -61,6 +64,7 @@ Primary CTA: charcoal (`fg`) background, not pink. Borders `#eceae4` instead of 
 - `.compozy/tasks/bjj-retention-app/task_08.md` — Reels components extend Tag patterns
 
 ### Related ADRs
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual](../adrs/adr-007.md) — `prototipo/` + `design.md` are the visual source of truth; tokens, components and anti-patterns must be reproduced
 - PRD **High-Level Technical Constraints** — design system reference to `prototipo/design.md`
 
 ## Deliverables

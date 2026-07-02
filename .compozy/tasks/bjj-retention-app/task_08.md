@@ -54,7 +54,7 @@ Expected paths:
 Expose playback progress callback hook for task_09 (50% view) without implementing insert here.
 
 ### Relevant Files
-- `prototipo/player.html` — layer stack and step content reference
+- `prototipo/player.html` — tela do Player a reproduzir (fonte de verdade visual: layer stack, steps, anti-patterns)
 - `prototipo/design.md` — ReelsStage specs, anti-patterns (§7)
 - `.compozy/tasks/bjj-retention-app/_techspec.md` — expo-video decision
 - `.agents/skills/vercel-react-native-skills/AGENTS.md` — expo-image/video guidance
@@ -65,6 +65,7 @@ Expose playback progress callback hook for task_09 (50% view) without implementi
 
 ### Related ADRs
 - [ADR-006: Estrutura de conteúdo da técnica](../adrs/adr-006.md) — De→Para, steps, expandable caption
+- [ADR-007: Protótipo high-fidelity como fonte de verdade visual](../adrs/adr-007.md) — PlayerScreen reproduz `prototipo/player.html`
 
 ## Deliverables
 - Immersive PlayerScreen with working vertical video playback
