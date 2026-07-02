@@ -223,6 +223,14 @@ bun test                # Jest + React Native Testing Library (unitários)
 bun run test:integration # Jest + Supabase local (requer `supabase start` + Docker)
 ```
 
+**Expo Orbit (atalho de build→emulador):** app desktop macOS para instalar e
+lançar artefatos de build (`.apk` Android, `.app` iOS Simulator, builds EAS e
+EAS Updates) em emuladores/simuladores em 1 clique. Não substitui o
+`bunx expo start` (Fast Refresh); use-o para validar APKs de `preview` no
+emulador antes de distribuir via WhatsApp, e para puxar builds de
+`development` do EAS sem `adb install` manual. Instalado em
+`/Applications/Expo Orbit.app`.
+
 **Supabase local (para testes de integração RLS):**
 
 ```bash
