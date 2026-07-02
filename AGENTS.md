@@ -190,12 +190,47 @@ php -S localhost:8080 -t prototipo
 Acesse: http://localhost:8080 (launcher) ou diretamente `/login.html`,
 `/home.html`, `/player.html`, `/search.html`.
 
-### App Expo (a implementar)
+### App Expo (RN/Expo, TypeScript)
 
-Siga o sequenciamento de build em
-[`_techspec.md`](.compozy/tasks/bjj-retention-app/_techspec.md) §Development
-Sequencing. Variáveis de ambiente do Supabase (URL + anon key) via `.env`/EAS
-secrets; nunca commite service-role.
+> O app ainda não foi scaffoldado. Após o scaffold (task_04), os comandos abaixo
+> passam a valer. Siga o sequenciamento de build em
+> [`_techspec.md`](.compozy/tasks/bjj-retention-app/_techspec.md) §Development
+> Sequencing.
+
+Variáveis de ambiente do Supabase (URL + anon key) via `.env`/EAS secrets;
+**nunca** commite service-role.
+
+```bash
+# Instalar dependências (apenas após scaffold; não rode sem necessidade)
+bun install
+
+# Servidor de desenvolvimento (Android-first — abra um emulator antes)
+bunx expo start         # ou: npx expo start
+# Pressione 'a' para abrir no Android emulator, 'i' para iOS
+
+# Build de desenvolvimento (EAS — requer login no Expo)
+bunx eas build --profile development --platform android
+
+# Build interno de piloto (APK distribuível via WhatsApp)
+bunx eas build --profile preview --platform android
+
+# Lint e typecheck (rodar antes de commitar)
+bun run lint
+bun run typecheck       # ou: bunx tsc --noEmit
+
+# Testes
+bun test                # Jest + React Native Testing Library (unitários)
+bun run test:integration # Jest + Supabase local (requer `supabase start` + Docker)
+```
+
+**Supabase local (para testes de integração RLS):**
+
+```bash
+# Pré-requisito: Docker rodando + Supabase CLI instalada
+supabase start          # sobe Postgres + Auth + PostgREST em containers
+supabase db reset       # reset por run (reaplica migrations + seed.sql)
+supabase stop           # ao terminar
+```
 
 ### Stack de testes (conforme TechSpec §Testing Approach)
 
