@@ -36,7 +36,7 @@ Aplica o schema relacional do MVP no projeto Supabase piloto já existente (`snj
 - [x] 1.1 Confirm connectivity to pilot project via MCP or Supabase dashboard — MCP não configurado localmente; CLI requer `SUPABASE_ACCESS_TOKEN` (não disponível no ambiente automatizado)
 - [x] 1.2 Author migration SQL for all tables, FKs, and `created_at` defaults
 - [x] 1.3 Enable `unaccent`, create the `IMMUTABLE` `f_unaccent` wrapper, and add search-related indexes
-- [ ] 1.4 Apply migration to pilot project and verify tables exist in SQL editor — bloqueado: sem token de acesso; script `scripts/apply-schema-to-pilot.sh` e instruções em `mcp-supabase-setup.md` preparados
+- [x] 1.4 Apply migration to pilot project and verify tables exist in SQL editor — aplicado via MCP Supabase (`supabase_apply_migration`); tabelas, índices, extensão `unaccent` e função `f_unaccent` verificados no projeto `snjaaejvwlkgmyvgrmro`
 - [x] 1.5 Document schema location and pilot `project_ref` cross-links in repo
 
 ## Implementation Details
@@ -73,14 +73,14 @@ Expected new paths:
 
 ## Tests
 - Unit tests:
-  - [ ] Migration file defines all seven tables with expected column names (profiles, weeks, videos, tags, video_tags, video_views)
-  - [ ] `videos` includes nullable `from_position`, `to_positions`, `steps` columns
-  - [ ] Index definitions match TechSpec (week_id, tag_id, user_id+watched_at, nome_tag, `lower(f_unaccent(nome_tag))` functional index)
-  - [ ] FK from `profiles.id` to `auth.users.id` is declared
+  - [x] Migration file defines all seven tables with expected column names (profiles, weeks, videos, tags, video_tags, video_views)
+  - [x] `videos` includes nullable `from_position`, `to_positions`, `steps` columns
+  - [x] Index definitions match TechSpec (week_id, tag_id, user_id+watched_at, nome_tag, `lower(f_unaccent(nome_tag))` functional index)
+  - [x] FK from `profiles.id` to `auth.users.id` is declared
 - Integration tests:
-  - [ ] After apply, `SELECT` from each table succeeds (empty rows OK)
-  - [ ] `f_unaccent('Ação')` returns `Acao` and the `lower(f_unaccent(nome_tag))` index is used by a tag lookup (verify via `EXPLAIN`)
-  - [ ] Insert/delete round-trip on `tags` with unique `nome_tag` constraint works
+  - [x] After apply, `SELECT` from each table succeeds (empty rows OK)
+  - [x] `f_unaccent('Ação')` returns `Acao` and the `lower(f_unaccent(nome_tag))` index is used by a tag lookup (verify via `EXPLAIN`)
+  - [x] Insert/delete round-trip on `tags` with unique `nome_tag` constraint works
 - Test coverage target: >=80%
 - All tests must pass
 

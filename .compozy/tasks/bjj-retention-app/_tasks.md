@@ -4,7 +4,7 @@
 
 | # | Title | Status | Complexity | Dependencies |
 |---|-------|--------|------------|--------------|
-| 01 | Provisionar Supabase — schema relacional, extensões e índices | pending | high | — |
+| 01 | Provisionar Supabase — schema relacional, extensões e índices | completed | high | — |
 | 02 | Políticas RLS e configuração Supabase Auth | pending | medium | task_01 |
 | 03 | Seed concierge e scripts SQL de métricas | pending | medium | task_02 |
 | 04 | Scaffold Expo com Expo Router e shell de navegação | pending | medium | — |
