@@ -10,7 +10,11 @@ bun.lockb
 
 # Supabase local stack
 supabase/.temp/
+supabase/.branches/
 supabase/.env
+
+# Xcode profiling artifacts
+*.profraw
 
 # Secrets
 .env
