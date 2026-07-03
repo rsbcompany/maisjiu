@@ -20,6 +20,7 @@ RETURNS text
 LANGUAGE sql
 IMMUTABLE
 PARALLEL SAFE
+SET search_path = public, pg_temp
 AS $$
   SELECT public.unaccent($1);
 $$;
