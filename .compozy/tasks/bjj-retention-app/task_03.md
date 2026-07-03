@@ -25,7 +25,7 @@ Popula o banco piloto com conteúdo de validação (semana atual, vídeos, tags,
 - MUST insert at least one published week spanning `current_date` for dashboard testing
 - MUST seed eight pilot videos with tags and technique metadata aligned with `prototipo/design.md` §4 (including multi-destination `to_positions`)
 - MUST create pilot student account(s) via Supabase Auth admin (service role), linked to `profiles.nome`
-- MUST validate `url_video` values are reachable vertical mp4/HLS URLs before seed commit
+- MUST use reachable vertical mp4/HLS URLs for `url_video`; **placeholder/sample vertical clips are acceptable for the initial seed** and replaced by the academy's real videos before pilot launch — validate reachability before seed commit
 - MUST document SQL snippets for: distinct videos/user/week (primary metric), total views/user/week (secondary), consumption distribution, weekly recurrence, pre/post-class split (Mon/Tue = pre-class)
 - MUST store seed and metric SQL under version control (e.g. `supabase/seed.sql`, `supabase/metrics/`)
 - MUST NOT commit real student passwords; document concierge provisioning steps instead

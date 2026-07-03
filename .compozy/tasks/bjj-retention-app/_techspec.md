@@ -142,7 +142,7 @@ No custom API — operations go through `supabase-js`/PostgREST, gated by RLS (A
 
 - **Supabase Auth** — JWT-based session persisted ~1 month (refresh token + auto-refresh) in Expo SecureStore, aligned to the monthly content cycle so students do not re-login at each weekly link. RLS consumes `auth.uid()`.
 - **Video hosting (Supabase Storage or external CDN)** — Public/signed URLs for `.mp4`/HLS; retried by the native player on transient failures.
-- **WhatsApp deep link** — `scheme://semana-atual` or `scheme://video/:id` resolved by Expo Router. When unauthenticated (including cold start with the app closed), the app stores the intended destination, shows login, then resumes to that destination after authenticating. Sending is manual (no API integration).
+- **WhatsApp deep link** — `maisjiu://semana-atual` or `maisjiu://video/:id` resolved by Expo Router. When unauthenticated (including cold start with the app closed), the app stores the intended destination, shows login, then resumes to that destination after authenticating. Sending is manual (no API integration).
 
 ## Impact Analysis
 
@@ -198,7 +198,7 @@ Test data isolation: integration runs use a disposable local database (reset per
 ### Technical Dependencies
 
 - Supabase pilot project provisioned and reachable (see below).
-- At least one published week with vertical video URLs available.
+- At least one published week with vertical video URLs available (placeholder/sample vertical mp4 acceptable for the initial seed; academy's real videos required before pilot launch).
 - Pilot accounts created (signup disabled).
 - Supabase CLI + Docker for the local integration stack (`supabase start`), or a dedicated cloud test project as fallback.
 

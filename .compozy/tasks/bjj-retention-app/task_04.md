@@ -25,7 +25,7 @@ Inicializa o app mobile Expo (TypeScript, Android-first) com Expo Router e a ár
 - MUST use Expo Router (file-based) with native stack for auth gating
 - MUST define routes: login (`app/login.tsx` or `(auth)/login`), tab group `(tabs)/index` (Início), `(tabs)/search` (Buscar), immersive `app/player/[id].tsx`
 - MUST hide tab bar on player route (full-bleed immersive screen)
-- MUST configure Android-first in `app.json` (package name, orientation portrait)
+- MUST configure Android-first in `app.json`: display name **Mais Jiu**, Android package **`ai.rsb.maisjiu`**, orientation portrait (URL scheme **`maisjiu`** is added in task_11)
 - MUST add Jest + React Native Testing Library baseline for future unit tests
 - MUST set up the integration test harness: Jest running against a local Supabase stack (`supabase start` via CLI/Docker), with `supabase db reset` seeding between runs (see TechSpec "Integration Tests")
 - MUST add npm scripts for unit and integration layers (e.g. `test:unit`, `test:integration`)

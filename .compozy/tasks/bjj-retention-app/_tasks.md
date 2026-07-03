@@ -34,6 +34,18 @@ O projeto Supabase **já foi criado**. Setup do MCP e `project_ref` estão docum
 
 Tasks **01–03** e **06** devem usar esse projeto; preferir MCP Supabase (`execute_sql`, advisors) quando disponível no agente.
 
+## Decisões de kickoff
+
+Definições confirmadas antes de iniciar a implementação:
+
+| Tema | Decisão | Tasks afetadas |
+|------|---------|----------------|
+| Vídeos do piloto | Iniciar com **placeholders/samples .mp4 vertical** no seed; substituir pelas URLs reais depois (não bloqueia o código). | 03, 08 |
+| Identidade do app | Nome **"Mais Jiu"**, package Android **`ai.rsb.maisjiu`**, scheme de deep link **`maisjiu`**. | 04, 11 |
+| Sessão | **Sliding** — renovada a cada abertura via auto-refresh do `supabase-js` (refresh token em SecureStore), janela ~1 mês. | 06 |
+| Credenciais Supabase | URL + **anon key** obtidas via MCP/dashboard e gravadas em `.env`; **nunca** commitar service-role. | 06 |
+| Ordem de início | **Infra Supabase primeiro**: task_01 → 02 → 03. | 01, 02, 03 |
+
 ## Descrições
 
 ### 01 — Provisionar Supabase — schema relacional, extensões e índices
