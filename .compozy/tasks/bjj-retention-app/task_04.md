@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Scaffold Expo com Expo Router e shell de navegação
 type: frontend
 complexity: medium
@@ -35,11 +35,11 @@ Inicializa o app mobile Expo (TypeScript, Android-first) com Expo Router e a ár
 </requirements>
 
 ## Subtasks
-- [ ] 4.1 Initialize Expo project with TypeScript and Expo Router
-- [ ] 4.2 Configure root layout with auth redirect skeleton (session check stub OK)
-- [ ] 4.3 Implement bottom tabs (Início, Buscar) with 56px height styling per design doc
-- [ ] 4.4 Add player stack route outside tabs with `headerShown: false`
-- [ ] 4.5 Verify Android dev build launches and navigates between placeholder screens
+- [x] 4.1 Initialize Expo project with TypeScript and Expo Router
+- [x] 4.2 Configure root layout with auth redirect skeleton (session check stub OK)
+- [x] 4.3 Implement bottom tabs (Início, Buscar) with 56px height styling per design doc
+- [x] 4.4 Add player stack route outside tabs with `headerShown: false`
+- [x] 4.5 Verify Android dev build launches and navigates between placeholder screens
 
 ## Implementation Details
 
@@ -78,13 +78,13 @@ Dependencies to install: `expo-router`, `react-native-safe-area-context`, `react
 
 ## Tests
 - Unit tests:
-  - [ ] Root layout exports without error
-  - [ ] Tab layout defines exactly two tabs: Início and Buscar
-  - [ ] Player route param `id` is declared in file-based route
+  - [x] Root layout exports without error
+  - [x] Tab layout defines exactly two tabs: Início and Buscar
+  - [x] Player route param `id` is declared in file-based route
 - Integration tests:
-  - [ ] Render root navigator; unauthenticated stub shows login route
-  - [ ] Navigate to `(tabs)/index` and `(tabs)/search` without crash
-  - [ ] Navigate to `player/[id]` and confirm tab bar hidden (snapshot or option assertion)
+  - [x] Render root navigator; unauthenticated stub shows login route
+  - [x] Navigate to `(tabs)/index` and `(tabs)/search` without crash
+  - [x] Navigate to `player/[id]` and confirm tab bar hidden (snapshot or option assertion)
 - Test coverage target: >=80%
 - All tests must pass
 

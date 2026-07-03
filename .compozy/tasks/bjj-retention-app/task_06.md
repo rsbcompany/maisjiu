@@ -1,11 +1,11 @@
 ---
-status: pending
+status: completed
 title: Cliente Supabase, ContentRepository e tela de login
 type: frontend
 complexity: medium
 dependencies:
-  - task_02
-  - task_05
+    - task_02
+    - task_05
 ---
 
 # Task 06: Cliente Supabase, ContentRepository e tela de login

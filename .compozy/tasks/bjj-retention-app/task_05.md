@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Design system e componentes base de UI
 type: frontend
 complexity: medium
@@ -32,12 +32,12 @@ Implementa tokens de design e componentes reutilizáveis fielmente ao protótipo
 </requirements>
 
 ## Subtasks
-- [ ] 5.1 Create `src/theme/` modules: colors, spacing, typography, motion
-- [ ] 5.2 Implement base form components: Field, Input, Button, Helper error text
-- [ ] 5.3 Implement Tag chip with default and active (filled) states
-- [ ] 5.4 Implement Snackbar with slide-up animation (~2200ms auto-hide)
-- [ ] 5.5 Implement StateView (empty/loading/error) and Caption typography helper
-- [ ] 5.6 Add component snapshot/unit tests for variant rendering
+- [x] 5.1 Create `src/theme/` modules: colors, spacing, typography, motion
+- [x] 5.2 Implement base form components: Field, Input, Button, Helper error text
+- [x] 5.3 Implement Tag chip with default and active (filled) states
+- [x] 5.4 Implement Snackbar with slide-up animation (~2200ms auto-hide)
+- [x] 5.5 Implement StateView (empty/loading/error) and Caption typography helper
+- [x] 5.6 Add component snapshot/unit tests for variant rendering
 
 ## Implementation Details
 
@@ -76,15 +76,15 @@ Primary CTA: charcoal (`fg`) background, not pink. Borders `#eceae4` instead of 
 
 ## Tests
 - Unit tests:
-  - [ ] `colors.accent` equals `#ff4d8d` and `colors.bg` equals `#f7f4ed`
-  - [ ] Button primary variant uses `fg` background, not accent
-  - [ ] Tag `active` state renders filled fg background
-  - [ ] Input with `error` prop applies danger border color
-  - [ ] IconButton enforces minimum 44×44 hit area
-  - [ ] Snackbar calls `onDismiss` after configured duration (fake timers)
+  - [x] `colors.accent` equals `#ff4d8d` and `colors.bg` equals `#f7f4ed`
+  - [x] Button primary variant uses `fg` background, not accent
+  - [x] Tag `active` state renders filled fg background
+  - [x] Input with `error` prop applies danger border color
+  - [x] IconButton enforces minimum 44×44 hit area
+  - [x] Snackbar calls `onDismiss` after configured duration (fake timers)
 - Integration tests:
-  - [ ] Field + Input + Button compose login form without layout overflow
-  - [ ] StateView renders empty state title and description from props
+  - [x] Field + Input + Button compose login form without layout overflow
+  - [x] StateView renders empty state title and description from props
 - Test coverage target: >=80%
 - All tests must pass
 

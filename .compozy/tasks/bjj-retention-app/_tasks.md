@@ -11,7 +11,7 @@
 | 05 | Design system e componentes base de UI | pending | medium | task_04 |
 | 06 | Cliente Supabase, ContentRepository e tela de login | pending | medium | task_02, task_05 |
 | 07 | Dashboard "Semana Atual" com carrossel horizontal | pending | medium | task_03, task_06 |
-| 08 | Player vertical imersivo com decomposição "De → Para" | pending | high | task_07 |
+| 08 | Player vertical imersivo com decomposição "De → Para" | completed | high | task_07 |
 | 09 | Registro de visualizações aos 50% do playhead | pending | medium | task_02, task_08 |
 | 10 | Biblioteca e busca por tags com chips | pending | medium | task_06, task_08 |
 | 11 | Deep linking WhatsApp com destino preservado no login | pending | medium | task_06, task_07 |
