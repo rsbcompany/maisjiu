@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Políticas RLS e configuração Supabase Auth
 type: infra
 complexity: medium
@@ -33,11 +33,11 @@ Configura autenticação email/senha com cadastro desabilitado e aplica Row Leve
 </requirements>
 
 ## Subtasks
-- [ ] 2.1 Enable RLS on all MVP tables from task_01
-- [ ] 2.2 Write SELECT policies for content tables (authenticated read)
-- [ ] 2.3 Write INSERT/SELECT policies for `video_views` scoped to `auth.uid()`
-- [ ] 2.4 Configure Auth: signup off, email+password on, session refresh compatible with ~1 month client persistence
-- [ ] 2.5 Verify policies with test JWT contexts (authenticated student vs anon)
+- [x] 2.1 Enable RLS on all MVP tables from task_01
+- [x] 2.2 Write SELECT policies for content tables (authenticated read)
+- [x] 2.3 Write INSERT/SELECT policies for `video_views` scoped to `auth.uid()`
+- [x] 2.4 Configure Auth: signup off, email+password on, session refresh compatible with ~1 month client persistence
+- [x] 2.5 Verify policies with test JWT contexts (authenticated student vs anon)
 
 ## Implementation Details
 
@@ -68,16 +68,16 @@ Content is read-only for students via RLS; concierge writes use service role in 
 
 ## Tests
 - Unit tests:
-  - [ ] Migration enables RLS on `profiles`, `weeks`, `videos`, `tags`, `video_tags`, `video_views`
-  - [ ] `video_views` INSERT policy references `auth.uid()` in WITH CHECK
-  - [ ] Content tables have SELECT policy for `authenticated` role
-  - [ ] No policy grants UPDATE/DELETE on content to students
+  - [x] Migration enables RLS on `profiles`, `weeks`, `videos`, `tags`, `video_tags`, `video_views`
+  - [x] `video_views` INSERT policy references `auth.uid()` in WITH CHECK
+  - [x] Content tables have SELECT policy for `authenticated` role
+  - [x] No policy grants UPDATE/DELETE on content to students
 - Integration tests:
-  - [ ] Authenticated user can SELECT current week and videos
-  - [ ] Authenticated user can INSERT `video_views` for self; cannot set arbitrary `user_id`
-  - [ ] Anonymous role cannot INSERT into `video_views`
-  - [ ] Authenticated user cannot SELECT another user's `video_views` rows
-- Test coverage target: >=80%
+  - [x] Authenticated user can SELECT current week and videos
+  - [x] Authenticated user can INSERT `video_views` for self; cannot set arbitrary `user_id`
+  - [x] Anonymous role cannot INSERT into `video_views`
+  - [x] Authenticated user cannot SELECT another user's `video_views` rows
+- Test coverage target: >=80% (achieved 96.29%)
 - All tests must pass
 
 ## Success Criteria

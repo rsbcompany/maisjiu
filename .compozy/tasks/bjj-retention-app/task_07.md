@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Dashboard "Semana Atual" com carrossel horizontal
 type: frontend
 complexity: medium
@@ -36,12 +36,12 @@ Implementa a tela Início com bloco da semana atual, carrossel horizontal de car
 </requirements>
 
 ## Subtasks
-- [ ] 7.1 Implement AppHeader home variant with greeting and search IconButton
-- [ ] 7.2 Implement WeekCard and section header with video count
-- [ ] 7.3 Implement VideoCard and horizontal Carousel with snap and edge fade
-- [ ] 7.4 Wire HomeScreen data fetching and loading/error/empty states
-- [ ] 7.5 Add tag chip row navigation to `(tabs)/search?tag=`
-- [ ] 7.6 Add unit tests for carousel fade logic and empty week rendering
+- [x] 7.1 Implement AppHeader home variant with greeting and search IconButton
+- [x] 7.2 Implement WeekCard and section header with video count
+- [x] 7.3 Implement VideoCard and horizontal Carousel with snap and edge fade
+- [x] 7.4 Wire HomeScreen data fetching and loading/error/empty states
+- [x] 7.5 Add tag chip row navigation to `(tabs)/search?tag=`
+- [x] 7.6 Add unit tests for carousel fade logic and empty week rendering
 
 ## Implementation Details
 

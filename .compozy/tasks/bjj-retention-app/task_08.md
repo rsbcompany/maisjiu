@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Player vertical imersivo com decomposição "De → Para"
 type: frontend
 complexity: high
@@ -36,12 +36,12 @@ Entrega a experiência imersiva de consumo em vídeo vertical com legenda expans
 </requirements>
 
 ## Subtasks
-- [ ] 8.1 Implement ReelsStage layout: video layer, top/bottom scrims, back IconButton
-- [ ] 8.2 Wire `expo-video` with loading, error (broken URL), and retry behavior
-- [ ] 8.3 Implement ReelsCaption: De→Para, steps list, expand/collapse animation
-- [ ] 8.4 Implement ReelsProgress scrubber and play/pause controls
-- [ ] 8.5 Load video by route param `id` via repository or passed params
-- [ ] 8.6 Add component tests for collapsed steps (max 2) and multi-destination text
+- [x] 8.1 Implement ReelsStage layout: video layer, top/bottom scrims, back IconButton
+- [x] 8.2 Wire `expo-video` with loading, error (broken URL), and retry behavior
+- [x] 8.3 Implement ReelsCaption: De→Para, steps list, expand/collapse animation
+- [x] 8.4 Implement ReelsProgress scrubber and play/pause controls
+- [x] 8.5 Load video by route param `id` via repository or passed params
+- [x] 8.6 Add component tests for collapsed steps (max 2) and multi-destination text
 
 ## Implementation Details
 
@@ -77,17 +77,17 @@ Expose playback progress callback hook for task_09 (50% view) without implementi
 
 ## Tests
 - Unit tests:
-  - [ ] Collapsed caption renders exactly 2 step items when 5 steps provided
-  - [ ] Expanded caption renders all steps after "Ver mais" toggle
-  - [ ] `toPositions=['100kg','Montada']` displays "100kg / Montada"
-  - [ ] Missing technique metadata hides ReelsDecomp and ReelsSteps blocks
-  - [ ] ReelsArrow style uses accent color token only
-  - [ ] Progress bar fill uses white, not accent
+  - [x] Collapsed caption renders exactly 2 step items when 5 steps provided
+  - [x] Expanded caption renders all steps after "Ver mais" toggle
+  - [x] `toPositions=['100kg','Montada']` displays "100kg / Montada"
+  - [x] Missing technique metadata hides ReelsDecomp and ReelsSteps blocks
+  - [x] ReelsArrow style uses accent color token only
+  - [x] Progress bar fill uses white, not accent
 - Integration tests:
-  - [ ] PlayerScreen loads video v2 from route param and shows title
-  - [ ] Tag pill press navigates to search with tag query
-  - [ ] Back button returns to previous screen
-  - [ ] Broken `urlVideo` shows error StateView with retry action
+  - [x] PlayerScreen loads video v2 from route param and shows title
+  - [x] Tag pill press navigates to search with tag query
+  - [x] Back button returns to previous screen
+  - [x] Broken `urlVideo` shows error StateView with retry action
 - Test coverage target: >=80%
 - All tests must pass
 

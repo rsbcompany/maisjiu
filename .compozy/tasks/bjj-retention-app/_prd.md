@@ -161,9 +161,10 @@
 - Quantos vídeos, em média, comporão cada semana (afeta expectativa de consumo)?
 - Haverá conteúdo de acervo já disponível no lançamento, ou o acervo começa vazio e cresce semana a semana?
 - Qual academia parceira e qual o tamanho da base de alunos do piloto?
-- A sessão de 1 mês é fixa a partir do login ou renovada a cada abertura (*sliding*)?
 
 ### Resolvidas nesta revisão
+
+- **Sessão (fixa vs. sliding):** *sliding* — renovada a cada abertura via auto-refresh do `supabase-js` (refresh token em SecureStore), mantendo a janela de ~1 mês sem relogin.
 
 - **Definição de view:** playhead atinge 50% da duração (uma vez por reprodução).
 - **Métricas:** duas, separadas — vídeos distintos assistidos e total de visualizações (eventos).

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Scaffold Expo com Expo Router e shell de navegação
 type: frontend
 complexity: medium
@@ -25,7 +25,7 @@ Inicializa o app mobile Expo (TypeScript, Android-first) com Expo Router e a ár
 - MUST use Expo Router (file-based) with native stack for auth gating
 - MUST define routes: login (`app/login.tsx` or `(auth)/login`), tab group `(tabs)/index` (Início), `(tabs)/search` (Buscar), immersive `app/player/[id].tsx`
 - MUST hide tab bar on player route (full-bleed immersive screen)
-- MUST configure Android-first in `app.json` (package name, orientation portrait)
+- MUST configure Android-first in `app.json`: display name **Mais Jiu**, Android package **`ai.rsb.maisjiu`**, orientation portrait (URL scheme **`maisjiu`** is added in task_11)
 - MUST add Jest + React Native Testing Library baseline for future unit tests
 - MUST set up the integration test harness: Jest running against a local Supabase stack (`supabase start` via CLI/Docker), with `supabase db reset` seeding between runs (see TechSpec "Integration Tests")
 - MUST add npm scripts for unit and integration layers (e.g. `test:unit`, `test:integration`)
@@ -35,11 +35,11 @@ Inicializa o app mobile Expo (TypeScript, Android-first) com Expo Router e a ár
 </requirements>
 
 ## Subtasks
-- [ ] 4.1 Initialize Expo project with TypeScript and Expo Router
-- [ ] 4.2 Configure root layout with auth redirect skeleton (session check stub OK)
-- [ ] 4.3 Implement bottom tabs (Início, Buscar) with 56px height styling per design doc
-- [ ] 4.4 Add player stack route outside tabs with `headerShown: false`
-- [ ] 4.5 Verify Android dev build launches and navigates between placeholder screens
+- [x] 4.1 Initialize Expo project with TypeScript and Expo Router
+- [x] 4.2 Configure root layout with auth redirect skeleton (session check stub OK)
+- [x] 4.3 Implement bottom tabs (Início, Buscar) with 56px height styling per design doc
+- [x] 4.4 Add player stack route outside tabs with `headerShown: false`
+- [x] 4.5 Verify Android dev build launches and navigates between placeholder screens
 
 ## Implementation Details
 
@@ -78,13 +78,13 @@ Dependencies to install: `expo-router`, `react-native-safe-area-context`, `react
 
 ## Tests
 - Unit tests:
-  - [ ] Root layout exports without error
-  - [ ] Tab layout defines exactly two tabs: Início and Buscar
-  - [ ] Player route param `id` is declared in file-based route
+  - [x] Root layout exports without error
+  - [x] Tab layout defines exactly two tabs: Início and Buscar
+  - [x] Player route param `id` is declared in file-based route
 - Integration tests:
-  - [ ] Render root navigator; unauthenticated stub shows login route
-  - [ ] Navigate to `(tabs)/index` and `(tabs)/search` without crash
-  - [ ] Navigate to `player/[id]` and confirm tab bar hidden (snapshot or option assertion)
+  - [x] Render root navigator; unauthenticated stub shows login route
+  - [x] Navigate to `(tabs)/index` and `(tabs)/search` without crash
+  - [x] Navigate to `player/[id]` and confirm tab bar hidden (snapshot or option assertion)
 - Test coverage target: >=80%
 - All tests must pass
 

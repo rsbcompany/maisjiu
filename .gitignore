@@ -2,5 +2,27 @@
 logs/
 *.log
 
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Supabase local stack
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# Xcode profiling artifacts
+*.profraw
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+coverage/
+
 # Superconductor-managed session context (local, tool-generated)
 .cursor/rules/superconductor-managed.mdc

@@ -4,14 +4,14 @@
 
 | # | Title | Status | Complexity | Dependencies |
 |---|-------|--------|------------|--------------|
-| 01 | Provisionar Supabase — schema relacional, extensões e índices | pending | high | — |
+| 01 | Provisionar Supabase — schema relacional, extensões e índices | completed | high | — |
 | 02 | Políticas RLS e configuração Supabase Auth | pending | medium | task_01 |
 | 03 | Seed concierge e scripts SQL de métricas | pending | medium | task_02 |
 | 04 | Scaffold Expo com Expo Router e shell de navegação | pending | medium | — |
 | 05 | Design system e componentes base de UI | pending | medium | task_04 |
 | 06 | Cliente Supabase, ContentRepository e tela de login | pending | medium | task_02, task_05 |
 | 07 | Dashboard "Semana Atual" com carrossel horizontal | pending | medium | task_03, task_06 |
-| 08 | Player vertical imersivo com decomposição "De → Para" | pending | high | task_07 |
+| 08 | Player vertical imersivo com decomposição "De → Para" | completed | high | task_07 |
 | 09 | Registro de visualizações aos 50% do playhead | pending | medium | task_02, task_08 |
 | 10 | Biblioteca e busca por tags com chips | pending | medium | task_06, task_08 |
 | 11 | Deep linking WhatsApp com destino preservado no login | pending | medium | task_06, task_07 |
@@ -33,6 +33,18 @@ O projeto Supabase **já foi criado**. Setup do MCP e `project_ref` estão docum
 | Autenticação MCP | Ver `mcp-supabase-setup.md` (OpenCode: `opencode mcp auth supabase`) |
 
 Tasks **01–03** e **06** devem usar esse projeto; preferir MCP Supabase (`execute_sql`, advisors) quando disponível no agente.
+
+## Decisões de kickoff
+
+Definições confirmadas antes de iniciar a implementação:
+
+| Tema | Decisão | Tasks afetadas |
+|------|---------|----------------|
+| Vídeos do piloto | Iniciar com **placeholders/samples .mp4 vertical** no seed; substituir pelas URLs reais depois (não bloqueia o código). | 03, 08 |
+| Identidade do app | Nome **"Mais Jiu"**, package Android **`ai.rsb.maisjiu`**, scheme de deep link **`maisjiu`**. | 04, 11 |
+| Sessão | **Sliding** — renovada a cada abertura via auto-refresh do `supabase-js` (refresh token em SecureStore), janela ~1 mês. | 06 |
+| Credenciais Supabase | URL + **anon key** obtidas via MCP/dashboard e gravadas em `.env`; **nunca** commitar service-role. | 06 |
+| Ordem de início | **Infra Supabase primeiro**: task_01 → 02 → 03. | 01, 02, 03 |
 
 ## Descrições
 
