@@ -22,6 +22,11 @@ function createSupabaseMock(resultsByTable: Record<string, QueryResult>) {
   return { from } as unknown as SupabaseClient;
 }
 
+function createRpcMock(result: QueryResult) {
+  const rpc = jest.fn(() => Promise.resolve(result));
+  return { from: jest.fn(() => createQueryBuilder({ data: null })), rpc } as unknown as SupabaseClient;
+}
+
 describe('SupabaseContentRepository', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -197,42 +202,40 @@ describe('SupabaseContentRepository', () => {
     ]);
   });
 
-  it('searchVideosByTag matches case- and accent-insensitively and returns the feed', async () => {
+  it('searchVideosByTag calls the rpc function and maps the returned videos', async () => {
     // Arrange
-    const tagRows = [
-      { id: 't1', nome_tag: 'Finalização' },
-      { id: 't2', nome_tag: 'Guarda' },
-    ];
-    const videoRow = {
-      id: 'v4',
-      week_id: 'w1',
-      titulo: 'Finalização da montada',
-      url_video: 'https://cdn/v4.mp4',
-      ordem: 4,
-      from_position: 'Montada',
-      to_positions: ['Estrangulamento'],
-      steps: ['Passo 1'],
-      video_tags: [{ tags: { id: 't1', nome_tag: 'Finalização' } }],
+    const rpcResult = {
+      data: [
+        {
+          id: 'v4',
+          week_id: 'w1',
+          titulo: 'Finalização da montada',
+          url_video: 'https://cdn/v4.mp4',
+          ordem: 4,
+          from_position: 'Montada',
+          to_positions: ['Estrangulamento'],
+          steps: ['Passo 1'],
+          tags: [{ id: 't1', nome_tag: 'Finalização' }],
+        },
+      ],
+      error: null,
     };
-    const client = createSupabaseMock({
-      tags: { data: tagRows },
-      video_tags: { data: [{ video_id: 'v4' }, { video_id: 'v4' }] },
-      videos: { data: [videoRow] },
-    });
+    const client = createRpcMock(rpcResult);
     const repository = new SupabaseContentRepository(client);
 
-    // Act — "finalizacao" (lowercase, no accent) must match "Finalização"
+    // Act
     const videos = await repository.searchVideosByTag('finalizacao');
 
     // Assert
+    expect(client.rpc).toHaveBeenCalledWith('search_videos_by_tag', { tag_query: 'finalizacao' });
     expect(videos).toHaveLength(1);
     expect(videos[0].id).toBe('v4');
     expect(videos[0].tags[0].nomeTag).toBe('Finalização');
   });
 
-  it('searchVideosByTag returns empty when no tag matches', async () => {
+  it('searchVideosByTag returns empty when the rpc returns no rows', async () => {
     // Arrange
-    const client = createSupabaseMock({ tags: { data: [{ id: 't1', nome_tag: 'Guarda' }] } });
+    const client = createRpcMock({ data: [], error: null });
     const repository = new SupabaseContentRepository(client);
 
     // Act
@@ -242,19 +245,13 @@ describe('SupabaseContentRepository', () => {
     expect(videos).toEqual([]);
   });
 
-  it('searchVideosByTag returns empty when matching tags have no videos', async () => {
+  it('searchVideosByTag throws when the rpc returns an error', async () => {
     // Arrange
-    const client = createSupabaseMock({
-      tags: { data: [{ id: 't1', nome_tag: 'Guarda' }] },
-      video_tags: { data: [] },
-    });
+    const client = createRpcMock({ data: null, error: new Error('rpc failed') });
     const repository = new SupabaseContentRepository(client);
 
-    // Act
-    const videos = await repository.searchVideosByTag('guarda');
-
-    // Assert
-    expect(videos).toEqual([]);
+    // Act & Assert
+    await expect(repository.searchVideosByTag('guarda')).rejects.toThrow('rpc failed');
   });
 
   it('recordView inserts a video_views row without a client-provided user_id', async () => {

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Button, Field, Input, Snackbar } from '@/src/components';
-import { colors, fontWeights, radius, space, textSizes, tracking } from '@/src/theme';
+import { colors, fontWeights, radius, space, textSizes } from '@/src/theme';
 import { supabase } from '@/src/lib/supabase';
 
 export default function LoginScreen() {
@@ -11,7 +10,6 @@ export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const router = useRouter();
 
   function clearError() {
     setError(null);
@@ -36,13 +34,10 @@ export default function LoginScreen() {
       return;
     }
 
-    await signIn(credentials, () => router.replace('/(tabs)'));
+    await signIn(credentials);
   }
 
-  async function signIn(
-    credentials: { email: string; password: string },
-    navigateToTabs: () => void
-  ) {
+  async function signIn(credentials: { email: string; password: string }) {
     setIsSubmitting(true);
     setSnackbarVisible(true);
 
@@ -53,10 +48,7 @@ export default function LoginScreen() {
 
     if (error) {
       setError(mapAuthError(error));
-      return;
     }
-
-    navigateToTabs();
   }
 
   return (

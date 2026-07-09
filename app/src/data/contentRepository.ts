@@ -14,6 +14,18 @@ export interface ContentRepository {
   recordView(videoId: UUID): Promise<void>;
 }
 
+type RpcVideo = {
+  id: string;
+  week_id: string;
+  titulo: string;
+  url_video: string;
+  ordem: number;
+  from_position: string | null;
+  to_positions: string[] | null;
+  steps: string[] | null;
+  tags: { id: string; nome_tag: string }[];
+};
+
 type DbTag = { id: string; nome_tag: string };
 type DbWeek = { id: string; titulo_semana: string; data_inicio: string; data_fim: string };
 type DbVideoTagJunction = { tags: DbTag };
@@ -81,13 +93,10 @@ export class SupabaseContentRepository implements ContentRepository {
   }
 
   async searchVideosByTag(tagName: string): Promise<VideoWithTags[]> {
-    const matchingIds = await this.getMatchingTagIds(tagName);
-    if (matchingIds.length === 0) return [];
+    const { data, error } = await this.client.rpc('search_videos_by_tag', { tag_query: tagName });
+    if (error) throw error;
 
-    const videoIds = await this.getVideoIdsForTags(matchingIds);
-    if (videoIds.length === 0) return [];
-
-    return this.getVideosByIds(videoIds);
+    return (data as RpcVideo[] | null)?.map(mapRpcVideo) ?? [];
   }
 
   async recordView(videoId: UUID): Promise<void> {
@@ -95,30 +104,6 @@ export class SupabaseContentRepository implements ContentRepository {
     if (error) throw error;
   }
 
-  private async getMatchingTagIds(tagName: string): Promise<string[]> {
-    const query = normalizeTag(tagName);
-    const allTags = await this.listTags();
-    return allTags.filter((tag) => normalizeTag(tag.nomeTag).includes(query)).map((tag) => tag.id);
-  }
-
-  private async getVideoIdsForTags(tagIds: string[]): Promise<string[]> {
-    const { data: junctionRows } = await this.client
-      .from('video_tags')
-      .select('video_id')
-      .in('tag_id', tagIds);
-
-    return getUniqueVideoIds(junctionRows as Array<{ video_id: string }> | null);
-  }
-
-  private async getVideosByIds(videoIds: string[]): Promise<VideoWithTags[]> {
-    const { data } = await this.client
-      .from('videos')
-      .select('*, video_tags(tags(id, nome_tag))')
-      .in('id', videoIds)
-      .order('ordem', { ascending: true });
-
-    return (data as DbVideo[] | null)?.map(mapVideo) ?? [];
-  }
 }
 
 /**
@@ -127,15 +112,6 @@ export class SupabaseContentRepository implements ContentRepository {
  */
 export function createContentRepository(client: SupabaseClient = supabase) {
   return new SupabaseContentRepository(client);
-}
-
-function normalizeTag(tagName: string): string {
-  return tagName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-}
-
-function getUniqueVideoIds(rows: Array<{ video_id: string }> | null): string[] {
-  if (!rows) return [];
-  return [...new Set(rows.map((row) => row.video_id))];
 }
 
 function mapWeek(row: DbWeek): Week {
@@ -149,6 +125,20 @@ function mapWeek(row: DbWeek): Week {
 
 function mapTag(row: DbTag): Tag {
   return { id: row.id, nomeTag: row.nome_tag };
+}
+
+function mapRpcVideo(row: RpcVideo): VideoWithTags {
+  return {
+    id: row.id,
+    weekId: row.week_id,
+    titulo: row.titulo,
+    urlVideo: row.url_video,
+    ordem: row.ordem,
+    tags: (row.tags ?? []).map(mapTag),
+    fromPosition: row.from_position ?? undefined,
+    toPositions: row.to_positions ?? undefined,
+    steps: row.steps ?? undefined,
+  };
 }
 
 function mapVideo(row: DbVideo): VideoWithTags {

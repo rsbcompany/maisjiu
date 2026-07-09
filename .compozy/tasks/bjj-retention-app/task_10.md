@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Biblioteca e busca por tags com chips
 type: frontend
 complexity: medium

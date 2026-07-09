@@ -6,13 +6,25 @@
     "orientation": "portrait",
     "owner": "rsbcompany",
     "icon": "./assets/images/icon.png",
-    "scheme": "app",
+    "scheme": "maisjiu",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "ai.rsb.maisjiu",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "maisjiu",
+              "host": "*"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
