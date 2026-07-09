@@ -2,12 +2,6 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { supabase } from '@/src/lib/supabase';
 import LoginScreen from '../../app/login';
 
-const mockReplace = jest.fn();
-
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ replace: mockReplace }),
-}));
-
 const signInWithPassword = jest.mocked(supabase.auth.signInWithPassword);
 
 describe('LoginScreen', () => {
@@ -45,7 +39,6 @@ describe('LoginScreen', () => {
     await waitFor(() => {
       expect(getAllByText('Credenciais inválidas. Tente aluno / 123456.')).toHaveLength(2);
     });
-    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it('clears the displayed error when a field changes (onChange behavior)', () => {
@@ -61,13 +54,13 @@ describe('LoginScreen', () => {
     expect(queryAllByText('Preencha usuário e senha.')).toHaveLength(0);
   });
 
-  it('redirects to the tabs group after a successful sign in', async () => {
+  it('calls signInWithPassword with the trimmed credentials and leaves navigation to the layout', async () => {
     // Arrange
     signInWithPassword.mockResolvedValue({
       data: { session: { access_token: 't' } },
       error: null,
     } as never);
-    const { getByTestId } = render(<LoginScreen />);
+    const { getByTestId, queryAllByText } = render(<LoginScreen />);
 
     // Act
     fireEvent.changeText(getByTestId('login-email'), 'aluno@academia.com');
@@ -81,6 +74,6 @@ describe('LoginScreen', () => {
         password: '123456',
       });
     });
-    expect(mockReplace).toHaveBeenCalledWith('/(tabs)');
+    expect(queryAllByText('Credenciais inválidas. Tente aluno / 123456.')).toHaveLength(0);
   });
 });

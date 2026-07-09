@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Registro de visualizações aos 50% do playhead
 type: frontend
 complexity: medium

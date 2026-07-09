@@ -12,6 +12,7 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 - task_06: cliente Supabase, `ContentRepository` e LoginScreen implementados (dependência do dashboard).
 - task_07: HomeScreen "Semana Atual" (AppHeader, WeekCard, Carousel c/ edge-fade, chips de tag, estados loading/empty/error) implementada; 107 testes, 96.62% stmts / 89.1% branches.
 - task_08: PlayerScreen imersivo (`app/app/player/[id].tsx`) com expo-video, ReelsStage/Caption/Progress/Tag, estados loading/erro/retry, tag→busca; 140 testes, cobertura global 97% stmts / 88% branches.
+- task_11: Deep links WhatsApp (`maisjiu://semana-atual`, `maisjiu://video/<id>`, `maisjiu://buscar?tag=`) com destino preservado através do login; configuração de scheme/intent filters, parser, store SecureStore, testes unitários/integração e docs de concierge implementados.
 
 ## Shared Decisions
 
@@ -28,6 +29,9 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 
 - Componentes `Pressable` com `style` como função não devem ser usados como `View` estático: o React Native não avalia a função para `View`, então o estilo permanece como `[Function]`. Separar o caminho interativo (`Pressable` + função) do estático (`View` + array/objeto) evita surpresas de cobertura e renderização.
 - Animated.Values armazenadas em `useRef` e acessadas via `.current` no corpo do componente/JSX disparam a regra `react-hooks/refs` do ESLint do Expo. Usar `useState(() => new Animated.Value(...))` para os valores animados e `useRef` apenas dentro de `useEffect` (timers) resolve o lint sem perder a estabilidade entre renders.
+- Navegação programática com rotas dinâmicas no Expo Router (typed routes habilitado) exige type assertion para `Href` quando o `pathname` é construído em tempo de execução, ex.: `{ pathname: route.pathname, params: route.params } as Href`.
+- `renderRouter(..., { initialUrl: '/(tabs)' }).getPathname()` reporta o índice das tabs como `/`, não como `/(tabs)`. Em testes de roteamento, verificar conteúdo da tela é mais confiável do que comparar pathname literais para a home.
+- Em testes de integração que precisam de round-trip no `expo-secure-store` (salvar → ler → deletar), usar um `Map` em memória com implementações customizadas de `getItemAsync`/`setItemAsync`/`deleteItemAsync` mantém os testes determinísticos e independentes.
 
 ## Open Risks
 

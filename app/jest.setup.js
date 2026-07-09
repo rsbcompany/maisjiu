@@ -1,5 +1,14 @@
 import 'react-native-gesture-handler/jestSetup';
 
+// React Native defines __DEV__ at build time; polyfill it for the Node test
+// environment so code gated behind `if (__DEV__)` does not throw.
+global.__DEV__ = false;
+
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(() => Promise.resolve(null)),
+  setItemAsync: jest.fn(() => Promise.resolve()),
+  deleteItemAsync: jest.fn(() => Promise.resolve()),
+}));
 jest.mock('expo-font', () => ({
   useFonts: () => [true],
 }));
@@ -15,6 +24,28 @@ jest.mock('expo-symbols', () => ({
 
 jest.mock('expo-status-bar', () => ({
   StatusBar: 'StatusBar',
+}));
+
+jest.mock('expo-linking', () => ({
+  parse: jest.fn((url) => {
+    const match = url.match(/^([^:]+):\/\/([^?]+)(\?.*)?$/);
+    if (!match) {
+      return { scheme: '', hostname: '', path: null, queryParams: {} };
+    }
+    const [, scheme, hostAndPath, query] = match;
+    const [hostname, ...pathParts] = hostAndPath.split('/');
+    const path = pathParts.join('/') || null;
+    const queryParams = {};
+    if (query) {
+      const params = new URLSearchParams(query.slice(1));
+      params.forEach((value, key) => {
+        queryParams[key] = value;
+      });
+    }
+    return { scheme, hostname, path, queryParams };
+  }),
+  getInitialURL: jest.fn(() => Promise.resolve(null)),
+  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
 jest.mock('expo', () => {
@@ -67,12 +98,6 @@ jest.mock('expo-video', () => {
     VideoView: (props) => React.createElement(View, props, props.children),
   };
 });
-
-jest.mock('expo-secure-store', () => ({
-  getItemAsync: jest.fn(() => Promise.resolve(null)),
-  setItemAsync: jest.fn(() => Promise.resolve()),
-  deleteItemAsync: jest.fn(() => Promise.resolve()),
-}));
 
 jest.mock('@/src/lib/supabase', () => {
   const createQueryBuilder = () => {

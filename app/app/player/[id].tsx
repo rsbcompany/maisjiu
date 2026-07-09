@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, StateView } from '@/src/components';
+import { Button, Snackbar, StateView } from '@/src/components';
 import { ReelsCaption, ReelsProgress, ReelsStage, ReelsTag } from '@/src/components/reels';
 import type { VideoWithTags } from '@/src/data/VideoWithTags';
+import { createContentRepository, type ContentRepository } from '@/src/data/contentRepository';
+import { createViewRecordingSession, shouldRecordView } from '@/src/data/viewRecording';
 import { usePlayerData } from '@/src/hooks/usePlayerData';
 import { usePlaybackProgress } from '@/src/hooks/usePlaybackProgress';
 import { normalizeText } from '@/src/lib/normalizeText';
@@ -48,9 +50,18 @@ function PlayerContent({ data, onBack, onReload }: PlayerContentProps) {
 function PlayerView({ video, onBack }: { video: VideoWithTags; onBack: () => void }) {
   const insets = useSafeAreaInsets();
   const { navigate } = useRouter();
+  const repository = useMemo(() => createContentRepository(), []);
   const { player, status, isPlaying, duration, progress, retry } = usePlaybackProgress(video.urlVideo);
   const [expanded, setExpanded] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
   const playButtonVisible = usePlayButtonVisibility(isPlaying);
+  const viewSessionRef = useRef(createViewRecordingSession());
+
+  useEffect(
+    () =>
+      trackPlaybackProgress(progress, duration, video.id, repository, viewSessionRef, setSnackbarVisible),
+    [progress, duration, video.id, repository]
+  );
 
   const togglePlay = useCallback(() => togglePlayback(player, isPlaying), [player, isPlaying]);
   const scrub = useCallback((ratio: number) => seekTo(player, ratio, duration), [player, duration]);
@@ -59,6 +70,7 @@ function PlayerView({ video, onBack }: { video: VideoWithTags; onBack: () => voi
     (label: string) => navigate({ pathname: '/search', params: { tag: normalizeText(label) } }),
     [navigate]
   );
+  const hideSnackbar = useCallback(() => setSnackbarVisible(false), []);
 
   if (status === 'error') {
     return <LoadError onRetry={retry} onBack={onBack} testID="player-video-error" />;
@@ -91,6 +103,12 @@ function PlayerView({ video, onBack }: { video: VideoWithTags; onBack: () => voi
       <View style={[styles.progress, { bottom: insets.bottom + space[2] }]}>
         <ReelsProgress progress={progress} onScrub={scrub} testID="reels-progress" />
       </View>
+      <Snackbar
+        message="Visualização registrada (50%)"
+        visible={snackbarVisible}
+        onDismiss={hideSnackbar}
+        testID="player-view-snackbar"
+      />
     </ReelsStage>
   );
 }
@@ -133,6 +151,37 @@ function togglePlayback(player: { play: () => void; pause: () => void }, isPlayi
 
 function seekTo(player: { currentTime: number }, ratio: number, duration: number): void {
   player.currentTime = ratio * duration;
+}
+
+function trackPlaybackProgress(
+  progress: number,
+  duration: number,
+  videoId: string,
+  repository: ContentRepository,
+  sessionRef: { current: ReturnType<typeof createViewRecordingSession> },
+  setSnackbarVisible: (visible: boolean) => void
+): void {
+  const { shouldRecord, nextSession } = shouldRecordView(progress, duration, sessionRef.current);
+  sessionRef.current = nextSession;
+  if (shouldRecord) {
+    void recordViewSafely(repository, videoId, setSnackbarVisible);
+  }
+}
+
+async function recordViewSafely(
+  repository: ContentRepository,
+  videoId: string,
+  setSnackbarVisible: (visible: boolean) => void
+): Promise<void> {
+  try {
+    await repository.recordView(videoId);
+    if (__DEV__) setSnackbarVisible(true);
+  } catch (error) {
+    // View recording must never crash the player. Log for debugging; the
+    // concierge reads metrics from the database, so a failed insert is visible
+    // there as a missing row rather than a user-facing error.
+    console.error('[Player] Failed to record view:', error);
+  }
 }
 
 function usePlayButtonVisibility(isPlaying: boolean): boolean {
