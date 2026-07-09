@@ -5,14 +5,14 @@
 | # | Title | Status | Complexity | Dependencies |
 |---|-------|--------|------------|--------------|
 | 01 | Provisionar Supabase — schema relacional, extensões e índices | completed | high | — |
-| 02 | Políticas RLS e configuração Supabase Auth | pending | medium | task_01 |
-| 03 | Seed concierge e scripts SQL de métricas | pending | medium | task_02 |
-| 04 | Scaffold Expo com Expo Router e shell de navegação | pending | medium | — |
-| 05 | Design system e componentes base de UI | pending | medium | task_04 |
-| 06 | Cliente Supabase, ContentRepository e tela de login | pending | medium | task_02, task_05 |
-| 07 | Dashboard "Semana Atual" com carrossel horizontal | pending | medium | task_03, task_06 |
+| 02 | Políticas RLS e configuração Supabase Auth | completed | medium | task_01 |
+| 03 | Seed concierge e scripts SQL de métricas | completed | medium | task_02 |
+| 04 | Scaffold Expo com Expo Router e shell de navegação | completed | medium | — |
+| 05 | Design system e componentes base de UI | completed | medium | task_04 |
+| 06 | Cliente Supabase, ContentRepository e tela de login | completed | medium | task_02, task_05 |
+| 07 | Dashboard "Semana Atual" com carrossel horizontal | completed | medium | task_03, task_06 |
 | 08 | Player vertical imersivo com decomposição "De → Para" | completed | high | task_07 |
-| 09 | Registro de visualizações aos 50% do playhead | pending | medium | task_02, task_08 |
+| 09 | Registro de visualizações aos 50% do playhead | completed | medium | task_02, task_08 |
 | 10 | Biblioteca e busca por tags com chips | completed | medium | task_06, task_08 |
 | 11 | Deep linking WhatsApp com destino preservado no login | completed | medium | task_06, task_07 |
 
