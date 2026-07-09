@@ -192,16 +192,11 @@ Acesse: http://localhost:8080 (launcher) ou diretamente `/login.html`,
 
 ### App Expo (RN/Expo, TypeScript)
 
-> O app ainda não foi scaffoldado. Após o scaffold (task_04), os comandos abaixo
-> passam a valer. Siga o sequenciamento de build em
-> [`_techspec.md`](.compozy/tasks/bjj-retention-app/_techspec.md) §Development
-> Sequencing.
-
 Variáveis de ambiente do Supabase (URL + anon key) via `.env`/EAS secrets;
 **nunca** commite service-role.
 
 ```bash
-# Instalar dependências (apenas após scaffold; não rode sem necessidade)
+# Instalar dependências
 bun install
 
 # Servidor de desenvolvimento (Android-first — abra um emulator antes)
@@ -219,8 +214,14 @@ bun run lint
 bun run typecheck       # ou: bunx tsc --noEmit
 
 # Testes
-bun test                # Jest + React Native Testing Library (unitários)
-bun run test:integration # Jest + Supabase local (requer `supabase start` + Docker)
+# IMPORTANTE: use `bun run <script>`; `bun test` invoca o runner nativo do Bun,
+# que não aplica a transformação do Jest aos arquivos do react-native no
+# node_modules e falha tanto na raiz quanto em `app/`.
+bun run test             # raiz: unitários + integração (Jest)
+bun run test:unit        # raiz: migrations/seed/RLS unitários
+bun run test:integration # raiz: migrations/seed/RLS contra Supabase local (requer Docker)
+bun run test:app         # app: testes do Expo (Jest + RNTL)
+bun run test:app:integration # app: integração do Expo (requer Supabase local)
 ```
 
 **Expo Orbit (atalho de build→emulador):** app desktop macOS para instalar e
@@ -234,8 +235,10 @@ emulador antes de distribuir via WhatsApp, e para puxar builds de
 **Supabase local (para testes de integração RLS):**
 
 ```bash
-# Pré-requisito: Docker rodando + Supabase CLI instalada
+# Pré-requisito: Docker rodando (Docker Desktop, OrbStack, etc.)
+# Se o Supabase CLI não estiver no PATH, use npx/bunx:
 supabase start          # sobe Postgres + Auth + PostgREST em containers
+npx supabase start      # alternativa quando o CLI não está instalado globalmente
 supabase db reset       # reset por run (reaplica migrations + seed.sql)
 supabase stop           # ao terminar
 ```

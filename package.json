@@ -4,10 +4,13 @@
   "private": true,
   "description": "Mais Jiu — app de retenção e estudo para Jiu-Jitsu",
   "scripts": {
-    "test": "jest",
+    "test": "jest tests/unit tests/integration --runInBand",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration --runInBand",
-    "test:coverage": "jest --coverage --runInBand"
+    "test:coverage": "jest --coverage --runInBand",
+    "test:app": "cd app && bun run test",
+    "test:app:integration": "cd app && bun run test:integration",
+    "test:all": "bun run test:unit && bun run test:integration && bun run test:app"
   },
   "devDependencies": {
     "jest": "^29.7.0",
