@@ -232,6 +232,32 @@ emulador antes de distribuir via WhatsApp, e para puxar builds de
 `development` do EAS sem `adb install` manual. Instalado em
 `/Applications/Expo Orbit.app`.
 
+Para rodar localmente no iOS Simulator via Expo Go usando o CLI do Orbit:
+
+```bash
+# 1. Abra o Expo Orbit (se ainda não estiver aberto)
+open -g "/Applications/Expo Orbit.app"
+
+# 2. Inicie o dev server do app (use --go para Expo Go e --host lan para IP local)
+cd app
+nohup bunx expo start --go --host lan > ../logs/expo-start.log 2>&1 &
+
+# 3. Dê boot no simulador iOS (use o UDID ou nome retornado por list-devices)
+/Applications/Expo\ Orbit.app/Contents/Resources/orbit-cli-arm64 boot-device -p ios --id "iPhone 17 Pro"
+
+# 4. Adicione o IP/URL do dev server às fontes confiáveis do Orbit
+/Applications/Expo\ Orbit.app/Contents/Resources/orbit-cli-arm64 set-custom-trusted-sources '192.168.3.10:8081,exp://192.168.3.10:8081'
+
+# 5. Abra o app no simulador (substitua pelo IP real do seu Mac)
+/Applications/Expo\ Orbit.app/Contents/Resources/orbit-cli-arm64 launch-expo-go -p ios --device-id "<UDID>" "exp://192.168.3.10:8081"
+```
+
+O Orbit também expõe ferramentas úteis: `list-devices`, `boot-device`,
+`install-and-launch`, `launch-update`. O pacote `expo-mcp` (já instalado em
+`app/`) conecta-se ao dev server e oferece ferramentas MCP como
+`automation_tap`, `automation_take_screenshot`, `collect_app_logs` e
+`open_devtools` para interagir com o app rodando.
+
 **Supabase local (para testes de integração RLS):**
 
 ```bash
